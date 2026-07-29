@@ -144,8 +144,11 @@ export const auth = {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         const cleanUser = username.trim().toLowerCase();
+        const cleanPass = password.trim();
+
+        // 1. Check Admin Credentials
         const admin = USERS.find(
-          (u) => u.username === cleanUser && u.password === password,
+          (u) => u.username.toLowerCase() === cleanUser && u.password === cleanPass,
         );
         if (admin) {
           const user = {
@@ -160,13 +163,54 @@ export const auth = {
           return;
         }
 
-        if (/^\d{8,12}$/.test(password)) {
+        // 2. Check Panitia Master List Credentials
+        const masterList = [
+          { nim: "255410026", nama: "Alvitho P Sipayung", divisi: "Ketua Panitia" },
+          { nim: "255410043", nama: "Zul Ikhwanul Anggara", divisi: "Sekretaris" },
+          { nim: "255410011", nama: "Maria Widya Febrianti", divisi: "Bendahara" },
+          { nim: "255410024", nama: "Muhammad Rezky Ayyriel Ramadhan", divisi: "Sie Acara" },
+          { nim: "255410078", nama: "Adina Larito", divisi: "Sie Acara" },
+          { nim: "255410032", nama: "Rivael Takeshi Prabu", divisi: "Sie Acara" },
+          { nim: "255410075", nama: "Hendrik Firmansyah", divisi: "Sie Acara" },
+          { nim: "255410045", nama: "Odilia Valencia P.P", divisi: "Sie Acara" },
+          { nim: "255410005", nama: "Rubu Yafo P Masneno", divisi: "Sie Humas" },
+          { nim: "255410029", nama: "Yesaya Mexi Dasalaku", divisi: "Sie Humas" },
+          { nim: "255410036", nama: "Maulana Giga Fachri Wibowo", divisi: "Sie Humas" },
+          { nim: "255410014", nama: "Muhammad Jepri", divisi: "Sie Perlengkapan" },
+          { nim: "255410010", nama: "Dzaky Aptanta", divisi: "Sie Perlengkapan" },
+          { nim: "255410003", nama: "Francisco G I Da Costa Corbafo", divisi: "Sie Perlengkapan" },
+          { nim: "255410042", nama: "Diana Amelia", divisi: "Sie Konsumsi" },
+          { nim: "255410019", nama: "Laesah Afenlia", divisi: "Sie Konsumsi" },
+          { nim: "255410080", nama: "Miftahul Hawaji", divisi: "Sie Konsumsi" },
+          { nim: "255410018", nama: "Rayhan Pratama", divisi: "PDD" },
+          { nim: "255410012", nama: "Dwi Ismi Andriani", divisi: "PDD" },
+          { nim: "255410020", nama: "Neisa Putri Syifaul Qolby", divisi: "PDD" },
+          { nim: "255410017", nama: "Usat Jalung", divisi: "PDD" },
+        ];
+
+        const matchPanitia = masterList.find(
+          (p) =>
+            p.nim === cleanUser ||
+            p.nim === cleanPass ||
+            p.nama.toLowerCase() === cleanUser
+        );
+
+        if (matchPanitia) {
+          if (/^\d+$/.test(cleanPass) && cleanPass !== matchPanitia.nim) {
+            reject({
+              code: "auth/wrong-password",
+              message: "Password / NIM tidak cocok. Masukkan NIM Anda yang benar.",
+            });
+            return;
+          }
+
           const user = {
-            username: username.trim(),
+            username: matchPanitia.nim,
             uid: "user-" + Date.now(),
-            displayName: username.trim(),
+            displayName: matchPanitia.nama,
             role: "user",
-            nim: password,
+            nim: matchPanitia.nim,
+            divisi: matchPanitia.divisi,
           };
           saveToLocalStorage(STORAGE_KEYS.AUTH, user);
           notifyAuthListeners(user);
@@ -176,9 +220,9 @@ export const auth = {
 
         reject({
           code: "auth/invalid-credential",
-          message: "Username atau password salah",
+          message: "Username / NIM atau Password salah! Periksa kembali data Anda.",
         });
-      }, 200);
+      }, 300);
     });
   },
 
@@ -304,7 +348,20 @@ if (firestore) {
     fsOnSnapshot(
       collection(firestore, "attendance"),
       (snapshot) => {
-        attendanceCache = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        const rawDocs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        // Automatically purge any invalid test record with nim '23232323'
+        snapshot.docs.forEach(async (docSnap) => {
+          const data = docSnap.data();
+          if (String(data.nim).trim() === '23232323') {
+            try {
+              await deleteDoc(docSnap.ref);
+            } catch (err) {
+              console.warn('[Firebase] Purge test record error:', err);
+            }
+          }
+        });
+
+        attendanceCache = rawDocs.filter((d) => String(d.nim).trim() !== '23232323');
         saveToLocalStorage(STORAGE_KEYS.ATTENDANCE, attendanceCache);
         setCloudStatus(true);
         notifyAttendanceListeners(attendanceCache);
@@ -320,6 +377,10 @@ if (firestore) {
     setCloudStatus(false);
   }
 }
+
+// Purge test record from local cache on load
+attendanceCache = attendanceCache.filter((d) => String(d.nim).trim() !== '23232323');
+saveToLocalStorage(STORAGE_KEYS.ATTENDANCE, attendanceCache);
 
 const attendanceAPI = {
   getAll() {
@@ -352,7 +413,7 @@ const attendanceAPI = {
   },
 
   getByNim(nim) {
-    return attendanceCache.filter((d) => d.nim === String(nim).trim());
+    return attendanceCache.filter((d) => String(d.nim).trim() === String(nim).trim());
   },
 
   existsByNim(nim) {
@@ -360,13 +421,28 @@ const attendanceAPI = {
   },
 
   async deleteById(id) {
-    attendanceCache = attendanceCache.filter((d) => d.id !== id);
+    const target = attendanceCache.find((d) => d.id === id || String(d.nim).trim() === String(id).trim());
+    const targetNim = target ? String(target.nim).trim() : String(id).trim();
+
+    attendanceCache = attendanceCache.filter(
+      (d) => d.id !== id && String(d.nim).trim() !== String(id).trim()
+    );
     saveToLocalStorage(STORAGE_KEYS.ATTENDANCE, attendanceCache);
     notifyAttendanceListeners(attendanceCache);
 
     if (firestore) {
       try {
-        await deleteDoc(doc(firestore, "attendance", id));
+        const snapshot = await getDocs(collection(firestore, "attendance"));
+        snapshot.docs.forEach(async (docSnap) => {
+          const data = docSnap.data();
+          if (docSnap.id === id || data.id === id || String(data.nim).trim() === targetNim || String(data.nim).trim() === '23232323') {
+            try {
+              await deleteDoc(docSnap.ref);
+            } catch (e) {
+              console.warn('[Firebase] Delete sub-doc error:', e);
+            }
+          }
+        });
         setCloudStatus(true);
       } catch (error) {
         console.warn("[Firebase] Cloud deleteDoc failed, local updated:", error.message);
