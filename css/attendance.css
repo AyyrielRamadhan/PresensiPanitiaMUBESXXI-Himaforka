@@ -240,8 +240,10 @@
 @media (max-width: 768px) {
     .attendance-page {
         padding: 20px 14px;
-        align-items: flex-start;
-        padding-top: 32px;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        min-height: 100dvh;
     }
 
     .attendance-card {
@@ -272,8 +274,11 @@
 
 @media (max-width: 480px) {
     .attendance-page {
-        padding: 12px 10px;
-        padding-top: 16px;
+        padding: 16px 12px;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        min-height: 100dvh;
     }
 
     .attendance-card {

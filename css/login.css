@@ -173,9 +173,11 @@ body.login-page::before {
 
 @media (max-width: 480px) {
     body.login-page {
-        padding: 12px;
-        align-items: flex-start;
-        padding-top: 40px;
+        padding: 16px 12px;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        min-height: 100dvh;
     }
 
     .login-card {
