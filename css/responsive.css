@@ -1,0 +1,270 @@
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 240px;
+    }
+
+    .navbar {
+        padding: 0 24px;
+    }
+
+    .page-content {
+        padding: 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.6);
+        z-index: 99;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s ease;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+    }
+
+    .sidebar-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .navbar {
+        padding: 0 16px;
+        height: 60px;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    .navbar-left h2 {
+        font-size: 16px;
+    }
+
+    .page-content {
+        padding: 20px 16px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stat-card-value {
+        font-size: 24px;
+    }
+
+    .stat-card-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        margin-bottom: 12px;
+    }
+
+    .token-number {
+        font-size: 40px;
+        letter-spacing: 6px;
+    }
+
+    .user-details {
+        display: none;
+    }
+
+    .table th,
+    .table td {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+    .filter-bar {
+        flex-direction: column;
+    }
+
+    .filter-bar .input {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .filter-bar .btn {
+        width: 100%;
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-content {
+        padding: 16px 12px;
+    }
+
+    .stats-grid {
+        gap: 8px;
+    }
+
+    .stat-card {
+        padding: 12px;
+    }
+
+    .stat-card-value {
+        font-size: 18px;
+    }
+
+    .stat-card-icon {
+        width: 34px;
+        height: 34px;
+        font-size: 15px;
+        margin-bottom: 8px;
+    }
+
+    .stat-card-label {
+        font-size: 11px;
+    }
+
+    .token-number {
+        font-size: 28px;
+        letter-spacing: 4px;
+    }
+
+    .navbar-left h2 {
+        font-size: 14px;
+    }
+
+    .table th,
+    .table td {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    .card {
+        padding: 14px;
+        border-radius: var(--radius-md);
+    }
+
+    .card-header h3 {
+        font-size: 14px;
+    }
+
+    .btn {
+        padding: 9px 16px;
+        font-size: 13px;
+    }
+
+    .btn-sm {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .sidebar-brand {
+        padding: 18px;
+    }
+
+    .sidebar-brand-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+
+    .sidebar-link {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .interval-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .settings-info strong {
+        font-size: 13px;
+    }
+
+    .settings-info span {
+        font-size: 12px;
+    }
+
+    .chart-bar-value {
+        font-size: 13px;
+    }
+
+    .token-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .login-card {
+        padding: 28px 20px;
+        border-radius: var(--radius-lg);
+    }
+
+    .login-brand-icon {
+        width: 52px;
+        height: 52px;
+        font-size: 22px;
+    }
+
+    .login-brand h1 {
+        font-size: 18px;
+    }
+
+    .attendance-card {
+        padding: 24px 16px;
+        border-radius: var(--radius-lg);
+    }
+
+    .attendance-header h2 {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 360px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .stat-card-value {
+        font-size: 16px;
+    }
+
+    .user-badge {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <circle cx="60" cy="60" r="56" fill="none" stroke="#7a001a" stroke-width="4"/>
+  <path d="M40 55l12 12 28-28" stroke="#7a001a" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="60" y="100" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="10" fill="#7a001a">HIMAFORKA</text>
+</svg>

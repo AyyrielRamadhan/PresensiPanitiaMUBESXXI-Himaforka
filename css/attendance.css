@@ -1,0 +1,224 @@
+.attendance-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+    position: relative;
+}
+
+.attendance-page::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background:
+        radial-gradient(circle at 20% 30%, rgba(122, 0, 26, 0.04) 0%, transparent 60%),
+        radial-gradient(circle at 80% 70%, rgba(122, 0, 26, 0.03) 0%, transparent 50%);
+    animation: bgFloat 20s ease infinite;
+    pointer-events: none;
+}
+
+.attendance-container {
+    width: 100%;
+    max-width: 520px;
+    position: relative;
+    z-index: 1;
+    animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.attendance-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--radius-xl);
+    padding: 36px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.attendance-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.attendance-header-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, var(--maroon), var(--maroon-dark));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    margin: 0 auto 12px;
+    box-shadow: 0 8px 24px rgba(122, 0, 26, 0.25);
+}
+
+.attendance-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.attendance-header p {
+    font-size: 13px;
+    color: var(--gray-500);
+}
+
+.attendance-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.attendance-form .form-group:last-of-type {
+    margin-bottom: 24px;
+}
+
+.scanner-section {
+    margin-bottom: 24px;
+}
+
+.scanner-section .card {
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.scanner-section .card-header {
+    margin-bottom: 12px;
+}
+
+#scannerContainer {
+    width: 100%;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--gray-100);
+    min-height: 200px;
+    position: relative;
+}
+
+#scannerContainer video {
+    display: block;
+    width: 100% !important;
+    border-radius: var(--radius-sm);
+}
+
+.scanner-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    gap: 12px;
+    color: var(--gray-400);
+}
+
+.scanner-placeholder i {
+    font-size: 40px;
+    opacity: 0.5;
+}
+
+.scanner-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.scanner-status {
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.scanner-status.active {
+    background: var(--success-light);
+    color: var(--success-dark);
+}
+
+.scanner-status.inactive {
+    background: var(--gray-100);
+    color: var(--gray-500);
+}
+
+.scanner-status i {
+    font-size: 10px;
+}
+
+.attendance-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 0;
+    animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.attendance-success-icon {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, var(--success), #059669);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: white;
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+    animation: successPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes successPop {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+.attendance-success h3 {
+    color: var(--success-dark);
+    font-size: 20px;
+}
+
+.user-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--gray-100);
+    padding: 6px 12px;
+    border-radius: 99px;
+    font-size: 12px;
+    color: var(--gray-600);
+    margin-bottom: 16px;
+    font-weight: 500;
+}
+
+.user-badge i {
+    color: var(--maroon);
+}
+
+@media (max-width: 480px) {
+    .attendance-page {
+        padding: 12px;
+        align-items: flex-start;
+        padding-top: 24px;
+    }
+
+    .attendance-card {
+        padding: 24px 16px;
+        border-radius: var(--radius-lg);
+    }
+
+    .attendance-header h2 {
+        font-size: 18px;
+    }
+}

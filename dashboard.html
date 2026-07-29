@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Presensi MUBES HIMAFORKA XXI</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<div id="loadingOverlay" class="loading-overlay" style="display:none">
+    <div class="loading-spinner"></div>
+    <p>Memuat...</p>
+</div>
+
+<div id="dashboardApp" class="dashboard-layout" style="display:none">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="sidebar-brand-text">
+                <strong>MUBES XXI</strong>
+                <small>Presensi</small>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Menu</div>
+            <a href="#" class="sidebar-link active" data-page="beranda">
+                <i class="bi bi-house-door-fill"></i> Beranda
+            </a>
+            <a href="#" class="sidebar-link" data-page="presensi">
+                <i class="bi bi-table"></i> Riwayat Presensi
+            </a>
+            <a href="#" class="sidebar-link" data-page="pengaturan">
+                <i class="bi bi-gear-fill"></i> Pengaturan
+            </a>
+        </nav>
+
+        <div class="sidebar-actions">
+            <div class="user-info" style="margin-bottom: 12px">
+                <div class="user-avatar" id="sidebarAvatar">A</div>
+                <div class="user-details">
+                    <span class="user-name" id="sidebarAdminName">Admin</span>
+                    <span class="user-role" id="sidebarAdminEmail">admin@himaforka.ac.id</span>
+                </div>
+            </div>
+            <button id="logoutBtn" class="btn btn-danger btn-full btn-sm">
+                <i class="bi bi-box-arrow-left"></i> Keluar
+            </button>
+        </div>
+    </aside>
+
+    <!-- Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main -->
+    <main class="main-content">
+
+        <!-- Navbar -->
+        <header class="navbar">
+            <div class="navbar-left">
+                <button class="hamburger" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h2 id="navbarTitle">Beranda</h2>
+            </div>
+            <div class="navbar-right">
+                <span id="realtimeClock" class="navbar-clock" style="font-size:13px;color:var(--gray-500);font-weight:500"></span>
+                <button id="logoutBtnNav" class="btn btn-outline btn-sm">
+                    <i class="bi bi-box-arrow-right"></i> Keluar
+                </button>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <!-- ===== PAGE: BERANDA ===== -->
+            <div class="page active" id="pageBeranda">
+
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-icon maroon">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+                        <div class="stat-card-content">
+                            <span class="stat-card-value" id="statHadir">0</span>
+                            <span class="stat-card-label">Hadir</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon red">
+                            <i class="bi bi-person-x-fill"></i>
+                        </div>
+                        <div class="stat-card-content">
+                            <span class="stat-card-value" id="statBelum">0</span>
+                            <span class="stat-card-label">Belum Hadir</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon blue">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div class="stat-card-content">
+                            <span class="stat-card-value" id="statTotal">0</span>
+                            <span class="stat-card-label">Total Peserta</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon green">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <div class="stat-card-content">
+                            <span class="stat-card-value" id="statDivisi">0</span>
+                            <span class="stat-card-label">Divisi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Token + QR -->
+                <div class="content-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-key-fill"></i>
+                            <h3>Token Aktif</h3>
+                        </div>
+                        <div class="token-display-area">
+                            <div class="token-number" id="adminTokenDisplay"></div>
+                            <div class="token-timer">
+                                <i class="bi bi-clock"></i>
+                                <span>Token berlaku </span>
+                                <span id="adminCountdownText">0</span>
+                                <span>detik lagi</span>
+                            </div>
+                            <div class="token-actions">
+                                <button id="generateTokenBtn" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-arrow-clockwise"></i> Generate Baru
+                                </button>
+                                <span class="badge badge-success" id="tokenStatusBadge">
+                                    <i class="bi bi-check-circle-fill"></i> Auto
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-qr-code"></i>
+                            <h3>QR Code</h3>
+                        </div>
+                        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px 0">
+                            <div id="adminQRCode"></div>
+                            <p class="card-desc" style="margin-bottom:0">Scan untuk presensi</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div class="card" style="margin-top:24px">
+                    <div class="card-header">
+                        <i class="bi bi-bar-chart-fill"></i>
+                        <h3>Statistik per Divisi</h3>
+                    </div>
+                    <div class="attendance-chart" id="chartContainer">
+                        <div class="empty-state">
+                            <i class="bi bi-bar-chart"></i>
+                            <h3>Belum ada data</h3>
+                            <p>Data presensi akan muncul di sini</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent -->
+                <div class="card" style="margin-top:24px">
+                    <div class="card-header">
+                        <i class="bi bi-clock-history"></i>
+                        <h3>Presensi Terbaru</h3>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table" id="recentTable">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>Divisi</th>
+                                    <th>Jam</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <a href="#" class="btn btn-link" data-page="presensi">
+                            Lihat Semua <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== PAGE: PRESENSI ===== -->
+            <div class="page" id="pagePresensi">
+                <div class="card" style="margin-bottom:20px">
+                    <div class="filter-bar" style="margin-bottom:0">
+                        <input type="text" id="searchInput" placeholder="Cari nama atau NIM..." class="input">
+                        <select id="filterDivisi" class="input">
+                            <option value="">Semua Divisi</option>
+                            <option value="Ketua Panitia">Ketua Panitia</option>
+                            <option value="Sekretaris">Sekretaris</option>
+                            <option value="Bendahara">Bendahara</option>
+                            <option value="Sie Acara">Sie Acara</option>
+                            <option value="Sie Humas">Sie Humas</option>
+                            <option value="Sie Perlengkapan">Sie Perlengkapan</option>
+                            <option value="Sie Konsumsi">Sie Konsumsi</option>
+                            <option value="PDD">PDD</option>
+                        </select>
+                        <button id="exportExcelBtn" class="btn btn-primary btn-sm">
+                            <i class="bi bi-file-earmark-excel-fill"></i> Export
+                        </button>
+                        <button id="clearAllBtn" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash-fill"></i> Hapus
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="table-wrapper">
+                        <table class="table" id="attendanceTable">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>NIM</th>
+                                    <th>Divisi</th>
+                                    <th>Token</th>
+                                    <th>Tanggal</th>
+                                    <th>Jam</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="tableEmpty" class="table-empty" style="display:none">
+                        <i class="bi bi-inbox"></i>
+                        <p>Belum ada data presensi</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== PAGE: PENGATURAN ===== -->
+            <div class="page" id="pagePengaturan">
+                <div class="content-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-sliders2"></i>
+                            <h3>Interval Token</h3>
+                        </div>
+                        <p class="card-desc">Atur durasi pergantian token otomatis.</p>
+                        <div class="interval-group">
+                            <button class="interval-btn" data-interval="30">30 detik</button>
+                            <button class="interval-btn active" data-interval="60">60 detik</button>
+                            <button class="interval-btn" data-interval="120">120 detik</button>
+                            <button class="interval-btn" data-interval="300">300 detik</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-toggle-on"></i>
+                            <h3>Auto Generate</h3>
+                        </div>
+                        <p class="card-desc">Token akan otomatis digenerate setiap interval.</p>
+                        <div class="settings-row">
+                            <div class="settings-info">
+                                <strong>Auto Generate</strong>
+                                <span>Nyalakan untuk pergantian token otomatis</span>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox" id="autoGenerateToggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <span id="autoGenerateStatus" style="font-size:13px;color:var(--success);font-weight:500;display:inline-flex;align-items:center;gap:6px">
+                            <i class="bi bi-check-circle-fill"></i> Aktif
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+
+<script type="module" src="js/firebase.js"></script>
+<script type="module" src="js/utils.js"></script>
+<script type="module" src="js/token.js"></script>
+<script type="module" src="js/qrcode-gen.js"></script>
+<script type="module" src="js/export.js"></script>
+<script type="module" src="js/dashboard.js"></script>
+<script type="module" src="js/settings.js"></script>
+</body>
+</html>
