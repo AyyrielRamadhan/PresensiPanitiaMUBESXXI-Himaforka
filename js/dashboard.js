@@ -277,17 +277,16 @@ function subscribeAttendance() {
    STATS
    ============================================================ */
 
-function updateStats() {
-    const total = attendanceData.length;
-    const unique = new Set(attendanceData.map(d => d.nim)).size;
-    const divisiSet = new Set(attendanceData.map(d => d.divisi));
-    const totalDivisi = DIVISI_LIST.length;
-    const belumHadir = Math.max(0, totalDivisi - divisiSet.size);
+const TOTAL_PANITIA = 20;
 
-    $('statHadir').textContent = unique;
+function updateStats() {
+    const hadir = new Set(attendanceData.map(d => d.nim)).size;
+    const belumHadir = Math.max(0, TOTAL_PANITIA - hadir);
+
+    $('statHadir').textContent = hadir;
     $('statBelum').textContent = belumHadir;
-    $('statTotal').textContent = total;
-    $('statDivisi').textContent = divisiSet.size;
+    $('statTotal').textContent = TOTAL_PANITIA;
+    $('statDivisi').textContent = DIVISI_LIST.length;
 }
 
 /* ============================================================

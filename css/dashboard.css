@@ -213,6 +213,14 @@
     color: var(--gray-500);
 }
 
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
 .page-content {
     padding: 28px 32px;
     flex: 1;
