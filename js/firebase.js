@@ -4,6 +4,7 @@ import {
   getFirestore,
   doc,
   setDoc,
+  deleteDoc,
   onSnapshot as fsOnSnapshot,
   collection,
   addDoc,
@@ -350,6 +351,22 @@ const attendanceAPI = {
 
   existsByNim(nim) {
     return this.getByNim(nim).length > 0;
+  },
+
+  async deleteById(id) {
+    attendanceCache = attendanceCache.filter((d) => d.id !== id);
+    saveToLocalStorage(STORAGE_KEYS.ATTENDANCE, attendanceCache);
+    notifyAttendanceListeners(attendanceCache);
+
+    if (firestore) {
+      try {
+        await deleteDoc(doc(firestore, "attendance", id));
+        setCloudStatus(true);
+      } catch (error) {
+        console.warn("[Firebase] Cloud deleteDoc failed, local updated:", error.message);
+        setCloudStatus(false);
+      }
+    }
   },
 
   async deleteAll() {

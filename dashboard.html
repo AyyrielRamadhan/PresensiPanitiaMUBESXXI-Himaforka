@@ -111,13 +111,15 @@
                             <span class="stat-card-label">Hadir</span>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" id="statBelumCard" style="cursor:pointer" title="Klik untuk lihat daftar panitia belum hadir">
                         <div class="stat-card-icon red">
                             <i class="bi bi-person-x-fill"></i>
                         </div>
                         <div class="stat-card-content">
                             <span class="stat-card-value" id="statBelum">0</span>
-                            <span class="stat-card-label">Belum Hadir</span>
+                            <span class="stat-card-label" style="display:flex;align-items:center;gap:4px">
+                                Belum Hadir <i class="bi bi-arrow-right-short"></i>
+                            </span>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -239,11 +241,17 @@
                             <option value="Sie Konsumsi">Sie Konsumsi</option>
                             <option value="PDD">PDD</option>
                         </select>
-                        <button id="exportExcelBtn" class="btn btn-primary btn-sm">
-                            <i class="bi bi-file-earmark-excel-fill"></i> Export
+                        <button id="addAttendanceBtn" class="btn btn-primary btn-sm">
+                            <i class="bi bi-person-plus-fill"></i> Tambah
+                        </button>
+                        <button id="printReportBtn" class="btn btn-outline btn-sm">
+                            <i class="bi bi-printer-fill"></i> Cetak / PDF
+                        </button>
+                        <button id="exportExcelBtn" class="btn btn-primary btn-sm" style="background:linear-gradient(135deg, #059669, #047857)">
+                            <i class="bi bi-file-earmark-excel-fill"></i> Excel
                         </button>
                         <button id="clearAllBtn" class="btn btn-danger btn-sm">
-                            <i class="bi bi-trash-fill"></i> Hapus
+                            <i class="bi bi-trash-fill"></i> Hapus Semua
                         </button>
                     </div>
                 </div>
@@ -261,6 +269,7 @@
                                     <th>Tanggal</th>
                                     <th>Jam</th>
                                     <th>Status</th>
+                                    <th class="no-print">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="attendanceBody"></tbody>
@@ -345,6 +354,65 @@
         </div>
         <div class="qr-modal-footer">
             <span><i class="bi bi-info-circle"></i> Tekan ESC atau klik di luar untuk menutup</span>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah Presensi Manual (Admin) -->
+<div id="addAttendanceModal" class="modal-overlay" style="display:none">
+    <div class="modal-box" style="max-width:480px;text-align:left">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid var(--gray-100);padding-bottom:12px">
+            <h3 style="margin:0;font-size:18px"><i class="bi bi-person-plus-fill" style="color:var(--maroon)"></i> Tambah Presensi Manual</h3>
+            <button id="closeAddModalBtn" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--gray-400)">&times;</button>
+        </div>
+        <form id="adminAddForm" autocomplete="off">
+            <div class="form-group">
+                <label for="adminAddNama"><i class="bi bi-person-fill"></i> Nama Lengkap</label>
+                <input type="text" id="adminAddNama" class="input" placeholder="Masukkan nama panitia" required>
+            </div>
+            <div class="form-group">
+                <label for="adminAddNim"><i class="bi bi-card-text"></i> NIM</label>
+                <input type="text" id="adminAddNim" class="input" placeholder="Masukkan NIM (angka)" required inputmode="numeric">
+            </div>
+            <div class="form-group">
+                <label for="adminAddDivisi"><i class="bi bi-building"></i> Divisi / Jabatan</label>
+                <select id="adminAddDivisi" class="input" required>
+                    <option value="">— Pilih Divisi —</option>
+                    <option value="Ketua Panitia">Ketua Panitia</option>
+                    <option value="Sekretaris">Sekretaris</option>
+                    <option value="Bendahara">Bendahara</option>
+                    <option value="Sie Acara">Sie Acara</option>
+                    <option value="Sie Humas">Sie Humas</option>
+                    <option value="Sie Perlengkapan">Sie Perlengkapan</option>
+                    <option value="Sie Konsumsi">Sie Konsumsi</option>
+                    <option value="PDD">PDD</option>
+                </select>
+            </div>
+            <div class="modal-actions" style="margin-top:24px;justify-content:flex-end">
+                <button type="button" id="cancelAddModalBtn" class="btn btn-outline">Batal</button>
+                <button type="submit" id="submitAddModalBtn" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i> Simpan Presensi
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Daftar Panitia Belum Hadir -->
+<div id="unattendedModal" class="modal-overlay" style="display:none">
+    <div class="modal-box" style="max-width:540px;text-align:left">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid var(--gray-100);padding-bottom:12px">
+            <div>
+                <h3 style="margin:0;font-size:18px"><i class="bi bi-person-x-fill" style="color:var(--danger)"></i> Panitia Belum Hadir</h3>
+                <p style="margin:2px 0 0;font-size:12px;color:var(--gray-500)">Daftar estimasi panitia yang belum mencatatkan kehadiran</p>
+            </div>
+            <button id="closeUnattendedModalBtn" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--gray-400)">&times;</button>
+        </div>
+        <div id="unattendedContent" style="max-height:360px;overflow-y:auto;padding-right:4px">
+            <!-- Dynamic Content -->
+        </div>
+        <div class="modal-actions" style="margin-top:20px;justify-content:flex-end">
+            <button id="okUnattendedBtn" class="btn btn-primary btn-sm">Tutup</button>
         </div>
     </div>
 </div>

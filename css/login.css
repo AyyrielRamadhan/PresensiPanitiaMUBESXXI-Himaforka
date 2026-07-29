@@ -112,13 +112,16 @@ body.login-page::before {
 }
 
 .login-brand-icon {
-    width: 72px;
-    height: 72px;
-    background: transparent;
+    width: 76px;
+    height: 76px;
+    background: #ffffff;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    filter: drop-shadow(0 6px 16px rgba(122, 0, 26, 0.25));
+    padding: 6px;
+    box-shadow: 0 8px 24px rgba(122, 0, 26, 0.15);
+    border: 1px solid var(--gray-100);
 }
 
 .login-brand h1 {
