@@ -80,6 +80,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         initLogoutButtons();
         initExport();
         initClearAll();
+        initAdminManualAdd();
+        initUnattendedModal();
+        initPrintReport();
     } catch (error) {
         console.error('[Dashboard] Init error:', error);
         showToast('Gagal memuat dashboard', 'error');
@@ -333,14 +336,59 @@ function updateAutoGenUI(settings) {
 }
 
 /* ============================================================
-   ATTENDANCE REALTIME
+   ATTENDANCE REALTIME & SOUND
    ============================================================ */
+
+let prevAttendanceCount = -1;
+
+function playChimeSound() {
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const now = ctx.currentTime;
+
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(523.25, now);
+        osc1.frequency.exponentialRampToValueAtTime(659.25, now + 0.12);
+
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(659.25, now + 0.12);
+        osc2.frequency.exponentialRampToValueAtTime(783.99, now + 0.35);
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.15, now + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc1.start(now);
+        osc1.stop(now + 0.15);
+        osc2.start(now + 0.12);
+        osc2.stop(now + 0.45);
+    } catch (e) {
+        console.warn('[Sound] Web Audio API notice:', e);
+    }
+}
 
 function subscribeAttendance() {
     if (unsubAttendance) unsubAttendance();
 
     unsubAttendance = db.attendance.onSnapshot((data) => {
-        attendanceData = data || [];
+        const newData = data || [];
+        if (prevAttendanceCount >= 0 && newData.length > prevAttendanceCount) {
+            playChimeSound();
+            showToast('Presensi baru tercatat!', 'info');
+        }
+        prevAttendanceCount = newData.length;
+        attendanceData = newData;
+
         updateStats();
         renderRecentTable();
         renderFullTable(
@@ -394,7 +442,7 @@ function renderRecentTable() {
 }
 
 /* ============================================================
-   FULL TABLE
+   FULL TABLE WITH ROW DELETE
    ============================================================ */
 
 function renderFullTable(searchText = '', divisiFilter = '') {
@@ -423,8 +471,30 @@ function renderFullTable(searchText = '', divisiFilter = '') {
             <td>${formatDate(d.createdAt)}</td>
             <td>${formatTime(d.createdAt)}</td>
             <td><span class="badge badge-success">Hadir</span></td>
+            <td class="no-print">
+                <button class="btn btn-danger btn-sm btn-delete-row" data-id="${d.id}" data-nama="${escapeHtml(d.nama || '')}" title="Hapus presensi ini" style="padding:4px 8px;font-size:12px">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
         </tr>`;
     }).join('');
+
+    tbody.querySelectorAll('.btn-delete-row').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const nama = btn.dataset.nama;
+            const { showModal } = import('./utils.js').then(({ showModal }) => {
+                showModal('Hapus Presensi', `Yakin ingin menghapus presensi ${nama}?`, 'Hapus', async () => {
+                    try {
+                        await db.attendance.deleteById(id);
+                        showToast(`Presensi ${nama} berhasil dihapus`, 'success');
+                    } catch (err) {
+                        showToast('Gagal menghapus presensi', 'error');
+                    }
+                });
+            });
+        });
+    });
 }
 
 /* ============================================================
@@ -544,5 +614,162 @@ function initClearAll() {
                 showLoading(false);
             }
         });
+    });
+}
+
+/* ============================================================
+   ADMIN MANUAL ADD ATTENDANCE
+   ============================================================ */
+
+function initAdminManualAdd() {
+    const btn = $('addAttendanceBtn');
+    const modal = $('addAttendanceModal');
+    const closeBtn = $('closeAddModalBtn');
+    const cancelBtn = $('cancelAddModalBtn');
+    const form = $('adminAddForm');
+
+    if (!modal || !form) return;
+
+    function openAddModal() {
+        form.reset();
+        modal.style.display = 'flex';
+    }
+
+    function closeAddModal() {
+        modal.style.display = 'none';
+    }
+
+    btn?.addEventListener('click', openAddModal);
+    closeBtn?.addEventListener('click', closeAddModal);
+    cancelBtn?.addEventListener('click', closeAddModal);
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeAddModal();
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nama = $('adminAddNama').value.trim();
+        const nim = $('adminAddNim').value.trim();
+        const divisi = $('adminAddDivisi').value;
+
+        if (!nama || !nim || !divisi) {
+            showToast('Harap lengkapi semua bidang data', 'error');
+            return;
+        }
+
+        if (db.attendance.existsByNim(nim)) {
+            showToast('NIM ini sudah tercatat presensinya', 'warning');
+            return;
+        }
+
+        try {
+            showLoading(true);
+            await db.attendance.add({
+                nama,
+                nim,
+                divisi,
+                token: 'ADMIN',
+                status: 'Hadir',
+            });
+            showToast(`Presensi ${nama} berhasil ditambahkan!`, 'success');
+            closeAddModal();
+        } catch (error) {
+            console.error('Add attendance error:', error);
+            showToast('Gagal menyimpan presensi', 'error');
+        } finally {
+            showLoading(false);
+        }
+    });
+}
+
+/* ============================================================
+   UNATTENDED PANITIA MODAL
+   ============================================================ */
+
+function initUnattendedModal() {
+    const card = $('statBelumCard');
+    const modal = $('unattendedModal');
+    const closeBtn = $('closeUnattendedModalBtn');
+    const okBtn = $('okUnattendedBtn');
+
+    if (!modal) return;
+
+    function openUnattendedModal() {
+        renderUnattendedContent();
+        modal.style.display = 'flex';
+    }
+
+    function closeUnattendedModal() {
+        modal.style.display = 'none';
+    }
+
+    card?.addEventListener('click', openUnattendedModal);
+    closeBtn?.addEventListener('click', closeUnattendedModal);
+    okBtn?.addEventListener('click', closeUnattendedModal);
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeUnattendedModal();
+    });
+}
+
+function renderUnattendedContent() {
+    const container = $('unattendedContent');
+    if (!container) return;
+
+    const attendedByDiv = {};
+    DIVISI_LIST.forEach(div => attendedByDiv[div] = []);
+
+    attendanceData.forEach(d => {
+        if (attendedByDiv[d.divisi]) {
+            attendedByDiv[d.divisi].push(d);
+        }
+    });
+
+    const totalHadir = new Set(attendanceData.map(d => d.nim)).size;
+    const totalBelum = Math.max(0, TOTAL_PANITIA - totalHadir);
+
+    let html = `
+        <div style="background:var(--gray-50);padding:12px;border-radius:var(--radius-sm);margin-bottom:16px;display:flex;justify-content:space-around;text-align:center">
+            <div>
+                <span style="font-size:11px;color:var(--gray-500);text-transform:uppercase;font-weight:600">Total Panitia</span>
+                <div style="font-size:20px;font-weight:700;color:var(--gray-800)">${TOTAL_PANITIA}</div>
+            </div>
+            <div>
+                <span style="font-size:11px;color:var(--success);text-transform:uppercase;font-weight:600">Sudah Hadir</span>
+                <div style="font-size:20px;font-weight:700;color:var(--success)">${totalHadir}</div>
+            </div>
+            <div>
+                <span style="font-size:11px;color:var(--danger);text-transform:uppercase;font-weight:600">Belum Hadir</span>
+                <div style="font-size:20px;font-weight:700;color:var(--danger)">${totalBelum}</div>
+            </div>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:8px">Rincian Kehadiran per Divisi:</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+    `;
+
+    DIVISI_LIST.forEach(div => {
+        const count = (attendedByDiv[div] || []).length;
+        html += `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-sm)">
+                <span style="font-weight:500;font-size:13px;color:var(--gray-800)">${escapeHtml(div)}</span>
+                <span class="badge ${count > 0 ? 'badge-success' : 'badge-warning'}">
+                    ${count} Panitia Hadir
+                </span>
+            </div>
+        `;
+    });
+
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+/* ============================================================
+   PRINT REPORT
+   ============================================================ */
+
+function initPrintReport() {
+    $('printReportBtn')?.addEventListener('click', () => {
+        window.print();
     });
 }

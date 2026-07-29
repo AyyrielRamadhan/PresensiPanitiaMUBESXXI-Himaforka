@@ -778,3 +778,55 @@
     font-size: 12px;
     color: var(--gray-400);
 }
+
+/* ============================================================
+   PRINT STYLES (PDF / Cetak Laporan)
+   ============================================================ */
+
+@media print {
+    .sidebar,
+    .topbar,
+    .filter-bar,
+    .no-print,
+    .btn,
+    .modal-overlay,
+    .badge-outline {
+        display: none !important;
+    }
+
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+
+    .page {
+        display: block !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+        break-inside: avoid;
+        margin-bottom: 20px !important;
+    }
+
+    .table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+    }
+
+    .table th, .table td {
+        border: 1px solid #ccc !important;
+        padding: 8px 12px !important;
+        color: #000 !important;
+    }
+
+    .table th {
+        background-color: #f3f4f6 !important;
+    }
+}
