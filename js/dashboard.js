@@ -413,6 +413,11 @@ function updateStats() {
     $('statBelum').textContent = belumHadir;
     $('statTotal').textContent = TOTAL_PANITIA;
     $('statDivisi').textContent = DIVISI_LIST.length;
+
+    if ($('printStatHadir')) $('printStatHadir').textContent = hadir;
+    if ($('printStatBelum')) $('printStatBelum').textContent = belumHadir;
+    if ($('printStatTotal')) $('printStatTotal').textContent = TOTAL_PANITIA;
+    if ($('printStatDivisi')) $('printStatDivisi').textContent = DIVISI_LIST.length;
 }
 
 /* ============================================================
