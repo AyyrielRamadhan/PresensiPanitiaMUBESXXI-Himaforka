@@ -6,7 +6,7 @@ import { auth, db, serverTimestamp } from './firebase.js';
 import { showToast, showLoading, escapeHtml } from './utils.js';
 import { validateForm, validateToken, isAlreadyAttend } from './validation.js';
 import { initScanner, stopScanner } from './scanner.js';
-import { loadSettings, getSettings } from './token.js';
+import { loadSettings, getSettings, initSettingsListener } from './token.js';
 
 /* ============================================================
    DOM REFS
@@ -33,9 +33,18 @@ const resetFormBtn = $('resetFormBtn');
    INIT
    ============================================================ */
 
+let unsubSettings = null;
+
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         loadSettings();
+
+        unsubSettings = initSettingsListener((settings) => {
+            const activeToken = settings.currentToken;
+            if (activeToken) {
+                $('tokenError').textContent = '';
+            }
+        });
 
         const user = auth.currentUser;
         if (user && user.role === 'user') {
