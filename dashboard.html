@@ -102,16 +102,18 @@
 
                 <!-- Stats -->
                 <div class="stats-grid">
-                    <div class="stat-card">
+                    <div class="stat-card" id="statHadirCard" style="cursor:pointer" title="Klik untuk lihat panitia yang sudah hadir">
                         <div class="stat-card-icon maroon">
                             <i class="bi bi-person-check-fill"></i>
                         </div>
                         <div class="stat-card-content">
                             <span class="stat-card-value" id="statHadir">0</span>
-                            <span class="stat-card-label">Hadir</span>
+                            <span class="stat-card-label" style="display:flex;align-items:center;gap:4px">
+                                Hadir <i class="bi bi-arrow-right-short"></i>
+                            </span>
                         </div>
                     </div>
-                    <div class="stat-card" id="statBelumCard" style="cursor:pointer" title="Klik untuk lihat daftar panitia belum hadir">
+                    <div class="stat-card" id="statBelumCard" style="cursor:pointer" title="Klik untuk lihat rincian panitia belum hadir">
                         <div class="stat-card-icon red">
                             <i class="bi bi-person-x-fill"></i>
                         </div>
@@ -122,22 +124,26 @@
                             </span>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" id="statTotalCard" style="cursor:pointer" title="Klik untuk lihat seluruh 20 panitia">
                         <div class="stat-card-icon blue">
                             <i class="bi bi-people-fill"></i>
                         </div>
                         <div class="stat-card-content">
-                            <span class="stat-card-value" id="statTotal">0</span>
-                            <span class="stat-card-label">Total Panitia</span>
+                            <span class="stat-card-value" id="statTotal">20</span>
+                            <span class="stat-card-label" style="display:flex;align-items:center;gap:4px">
+                                Total Panitia <i class="bi bi-arrow-right-short"></i>
+                            </span>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" id="statDivisiCard" style="cursor:pointer" title="Klik untuk lihat rincian per divisi">
                         <div class="stat-card-icon green">
                             <i class="bi bi-building"></i>
                         </div>
                         <div class="stat-card-content">
-                            <span class="stat-card-value" id="statDivisi">0</span>
-                            <span class="stat-card-label">Divisi</span>
+                            <span class="stat-card-value" id="statDivisi">8</span>
+                            <span class="stat-card-label" style="display:flex;align-items:center;gap:4px">
+                                Divisi <i class="bi bi-arrow-right-short"></i>
+                            </span>
                         </div>
                     </div>
                 </div>

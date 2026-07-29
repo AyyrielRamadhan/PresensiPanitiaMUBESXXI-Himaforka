@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         initExport();
         initClearAll();
         initAdminManualAdd();
-        initUnattendedModal();
+        initStatCardsClick();
         initPrintReport();
     } catch (error) {
         console.error('[Dashboard] Init error:', error);
@@ -778,32 +778,76 @@ function initAdminManualAdd() {
 }
 
 /* ============================================================
-   UNATTENDED PANITIA MODAL
+   INTERACTIVE 4 STAT CARDS CLICK HANDLERS
    ============================================================ */
 
-function initUnattendedModal() {
-    const card = $('statBelumCard');
+function initStatCardsClick() {
+    const statHadirCard = $('statHadirCard');
+    const statBelumCard = $('statBelumCard');
+    const statTotalCard = $('statTotalCard');
+    const statDivisiCard = $('statDivisiCard');
+
     const modal = $('unattendedModal');
     const closeBtn = $('closeUnattendedModalBtn');
     const okBtn = $('okUnattendedBtn');
 
-    if (!modal) return;
+    function navigateToPresensi(statusVal = '') {
+        const links = document.querySelectorAll('.sidebar-link');
+        const pages = document.querySelectorAll('.page');
+        
+        links.forEach(l => l.classList.remove('active'));
+        pages.forEach(p => p.classList.remove('active'));
+
+        const targetLink = document.querySelector('.sidebar-link[data-page="presensi"]');
+        const targetPage = $('pagePresensi');
+        const navTitle = $('navbarTitle');
+
+        if (targetLink) targetLink.classList.add('active');
+        if (targetPage) targetPage.classList.add('active');
+        if (navTitle) navTitle.textContent = 'Riwayat Presensi';
+
+        const filterStatus = $('filterStatus');
+        if (filterStatus) {
+            filterStatus.value = statusVal;
+            triggerTableRender();
+        }
+    }
+
+    statHadirCard?.addEventListener('click', () => {
+        navigateToPresensi('Hadir');
+    });
 
     function openUnattendedModal() {
         renderUnattendedContent();
-        modal.style.display = 'flex';
+        if (modal) modal.style.display = 'flex';
     }
 
     function closeUnattendedModal() {
-        modal.style.display = 'none';
+        if (modal) modal.style.display = 'none';
     }
 
-    card?.addEventListener('click', openUnattendedModal);
+    statBelumCard?.addEventListener('click', openUnattendedModal);
     closeBtn?.addEventListener('click', closeUnattendedModal);
     okBtn?.addEventListener('click', closeUnattendedModal);
 
-    modal.addEventListener('click', (e) => {
+    modal?.addEventListener('click', (e) => {
         if (e.target === modal) closeUnattendedModal();
+    });
+
+    statTotalCard?.addEventListener('click', () => {
+        navigateToPresensi('');
+    });
+
+    statDivisiCard?.addEventListener('click', () => {
+        const chartCard = document.querySelector('.chart-card') || $('chartContainer');
+        if (chartCard) {
+            chartCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            chartCard.style.transition = 'box-shadow 0.3s ease';
+            chartCard.style.boxShadow = '0 0 0 3px var(--maroon)';
+            setTimeout(() => {
+                chartCard.style.boxShadow = '';
+            }, 1500);
+        }
     });
 }
 
