@@ -8,7 +8,7 @@ import { showToast, showLoading, formatDate, formatTime, debounce, escapeHtml, g
 import { loadSettings, generateNewToken, getSettings, initSettingsListener } from './token.js';
 import { initQR, updateQR } from './qrcode-gen.js';
 import { exportToExcel } from './export.js';
-import { DIVISI_LIST } from './validation.js';
+import { DIVISI_LIST, MASTER_PANITIA, findPanitiaByNim, getPanitiaBelumHadir } from './validation.js';
 
 /* ============================================================
    STATE
@@ -393,7 +393,8 @@ function subscribeAttendance() {
         renderRecentTable();
         renderFullTable(
             document.getElementById('searchInput')?.value || '',
-            document.getElementById('filterDivisi')?.value || ''
+            document.getElementById('filterDivisi')?.value || '',
+            document.getElementById('filterStatus')?.value || ''
         );
         renderChart();
     });
@@ -447,18 +448,54 @@ function renderRecentTable() {
 }
 
 /* ============================================================
-   FULL TABLE WITH ROW DELETE
+   FULL TABLE WITH HADIR & BELUM HADIR
    ============================================================ */
 
-function renderFullTable(searchText = '', divisiFilter = '') {
+function renderFullTable(searchText = '', divisiFilter = '', statusFilter = '') {
     const tbody = $('attendanceBody');
     const empty = $('tableEmpty');
     if (!tbody) return;
 
-    let data = db.attendance.query({ search: searchText, divisi: divisiFilter });
-    data.sort((a, b) => b.createdAt - a.createdAt);
+    const attendedNims = new Set(attendanceData.map(d => String(d.nim).trim()));
+    const attendedList = attendanceData.map(d => ({ ...d, isPresent: true, status: 'Hadir' }));
+    
+    const unattendedMaster = MASTER_PANITIA.filter(p => !attendedNims.has(p.nim)).map(p => ({
+        id: 'unattended-' + p.nim,
+        nama: p.nama,
+        nim: p.nim,
+        divisi: p.divisi,
+        token: '-',
+        createdAt: null,
+        isPresent: false,
+        status: 'Belum Hadir',
+    }));
 
-    if (data.length === 0) {
+    let combined = [...attendedList, ...unattendedMaster];
+
+    if (searchText) {
+        const s = searchText.toLowerCase().trim();
+        combined = combined.filter(d => 
+            (d.nama && d.nama.toLowerCase().includes(s)) ||
+            (d.nim && d.nim.toLowerCase().includes(s))
+        );
+    }
+
+    if (divisiFilter) {
+        combined = combined.filter(d => d.divisi === divisiFilter);
+    }
+
+    if (statusFilter) {
+        combined = combined.filter(d => d.status === statusFilter);
+    }
+
+    combined.sort((a, b) => {
+        if (a.isPresent && !b.isPresent) return -1;
+        if (!a.isPresent && b.isPresent) return 1;
+        if (a.isPresent && b.isPresent) return (b.createdAt || 0) - (a.createdAt || 0);
+        return a.nama.localeCompare(b.nama);
+    });
+
+    if (combined.length === 0) {
         tbody.innerHTML = '';
         if (empty) empty.style.display = 'block';
         return;
@@ -466,21 +503,30 @@ function renderFullTable(searchText = '', divisiFilter = '') {
 
     if (empty) empty.style.display = 'none';
 
-    tbody.innerHTML = data.map((d, i) => {
+    tbody.innerHTML = combined.map((d, i) => {
+        const isPresent = d.isPresent;
+        const statusBadge = isPresent
+            ? '<span class="badge badge-success">Hadir</span>'
+            : '<span class="badge badge-danger">Belum Hadir</span>';
+
+        const actionBtn = isPresent
+            ? `<button class="btn btn-danger btn-sm btn-delete-row" data-id="${d.id}" data-nama="${escapeHtml(d.nama || '')}" title="Hapus presensi ini" style="padding:4px 8px;font-size:12px">
+                <i class="bi bi-trash"></i>
+               </button>`
+            : `<button class="btn btn-primary btn-sm btn-mark-present" data-nim="${d.nim}" data-nama="${escapeHtml(d.nama)}" data-divisi="${escapeHtml(d.divisi)}" title="Tandai Hadir Manual" style="padding:4px 8px;font-size:12px">
+                <i class="bi bi-check-lg"></i> Presensikan
+               </button>`;
+
         return `<tr>
             <td>${i + 1}</td>
             <td><strong>${escapeHtml(d.nama || '-')}</strong></td>
             <td>${escapeHtml(d.nim || '-')}</td>
             <td>${escapeHtml(d.divisi || '-')}</td>
             <td style="font-family:monospace;font-weight:600;color:var(--maroon)">${escapeHtml(d.token || '-')}</td>
-            <td>${formatDate(d.createdAt)}</td>
-            <td>${formatTime(d.createdAt)}</td>
-            <td><span class="badge badge-success">Hadir</span></td>
-            <td class="no-print">
-                <button class="btn btn-danger btn-sm btn-delete-row" data-id="${d.id}" data-nama="${escapeHtml(d.nama || '')}" title="Hapus presensi ini" style="padding:4px 8px;font-size:12px">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </td>
+            <td>${d.createdAt ? formatDate(d.createdAt) : '-'}</td>
+            <td>${d.createdAt ? formatTime(d.createdAt) : '-'}</td>
+            <td>${statusBadge}</td>
+            <td class="no-print">${actionBtn}</td>
         </tr>`;
     }).join('');
 
@@ -498,6 +544,30 @@ function renderFullTable(searchText = '', divisiFilter = '') {
                     }
                 });
             });
+        });
+    });
+
+    tbody.querySelectorAll('.btn-mark-present').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const nim = btn.dataset.nim;
+            const nama = btn.dataset.nama;
+            const divisi = btn.dataset.divisi;
+
+            try {
+                showLoading(true);
+                await db.attendance.add({
+                    nama,
+                    nim,
+                    divisi,
+                    token: 'ADMIN',
+                    status: 'Hadir',
+                });
+                showToast(`Presensi ${nama} berhasil ditandai hadir!`, 'success');
+            } catch (err) {
+                showToast('Gagal memproses presensi', 'error');
+            } finally {
+                showLoading(false);
+            }
         });
     });
 }
@@ -549,17 +619,26 @@ function renderChart() {
 
 const searchInput = $('searchInput');
 const filterDivisi = $('filterDivisi');
+const filterStatus = $('filterStatus');
+
+function triggerTableRender() {
+    renderFullTable(
+        searchInput?.value || '',
+        filterDivisi?.value || '',
+        filterStatus?.value || ''
+    );
+}
 
 if (searchInput) {
-    searchInput.addEventListener('input', debounce(() => {
-        renderFullTable(searchInput.value, filterDivisi?.value || '');
-    }, 300));
+    searchInput.addEventListener('input', debounce(triggerTableRender, 300));
 }
 
 if (filterDivisi) {
-    filterDivisi.addEventListener('change', () => {
-        renderFullTable(searchInput?.value || '', filterDivisi.value);
-    });
+    filterDivisi.addEventListener('change', triggerTableRender);
+}
+
+if (filterStatus) {
+    filterStatus.addEventListener('change', triggerTableRender);
 }
 
 /* ============================================================
@@ -648,6 +727,16 @@ function initAdminManualAdd() {
     closeBtn?.addEventListener('click', closeAddModal);
     cancelBtn?.addEventListener('click', closeAddModal);
 
+    $('adminAddNim')?.addEventListener('input', (e) => {
+        const val = e.target.value.replace(/[^0-9]/g, '');
+        e.target.value = val;
+        const match = findPanitiaByNim(val);
+        if (match) {
+            $('adminAddNama').value = match.nama;
+            $('adminAddDivisi').value = match.divisi;
+        }
+    });
+
     modal.addEventListener('click', (e) => {
         if (e.target === modal) closeAddModal();
     });
@@ -722,17 +811,10 @@ function renderUnattendedContent() {
     const container = $('unattendedContent');
     if (!container) return;
 
-    const attendedByDiv = {};
-    DIVISI_LIST.forEach(div => attendedByDiv[div] = []);
-
-    attendanceData.forEach(d => {
-        if (attendedByDiv[d.divisi]) {
-            attendedByDiv[d.divisi].push(d);
-        }
-    });
-
-    const totalHadir = new Set(attendanceData.map(d => d.nim)).size;
-    const totalBelum = Math.max(0, TOTAL_PANITIA - totalHadir);
+    const attendedNims = new Set(attendanceData.map(d => String(d.nim).trim()));
+    const unattendedList = MASTER_PANITIA.filter(p => !attendedNims.has(p.nim));
+    const totalHadir = attendedNims.size;
+    const totalBelum = unattendedList.length;
 
     let html = `
         <div style="background:var(--gray-50);padding:12px;border-radius:var(--radius-sm);margin-bottom:16px;display:flex;justify-content:space-around;text-align:center">
@@ -749,24 +831,60 @@ function renderUnattendedContent() {
                 <div style="font-size:20px;font-weight:700;color:var(--danger)">${totalBelum}</div>
             </div>
         </div>
-        <div style="font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:8px">Rincian Kehadiran per Divisi:</div>
+        <div style="font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:10px">Daftar Panitia Belum Hadir (${totalBelum} Orang):</div>
         <div style="display:flex;flex-direction:column;gap:8px">
     `;
 
-    DIVISI_LIST.forEach(div => {
-        const count = (attendedByDiv[div] || []).length;
+    if (unattendedList.length === 0) {
         html += `
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-sm)">
-                <span style="font-weight:500;font-size:13px;color:var(--gray-800)">${escapeHtml(div)}</span>
-                <span class="badge ${count > 0 ? 'badge-success' : 'badge-warning'}">
-                    ${count} Panitia Hadir
-                </span>
+            <div style="text-align:center;padding:24px;color:var(--success);font-weight:600">
+                <i class="bi bi-check-circle-fill" style="font-size:32px;display:block;margin-bottom:8px"></i>
+                Semua panitia (20 Orang) telah hadir 100%!
             </div>
         `;
-    });
+    } else {
+        unattendedList.forEach((p, idx) => {
+            html += `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-sm)">
+                    <div>
+                        <div style="font-weight:600;font-size:14px;color:var(--gray-900)">${idx + 1}. ${escapeHtml(p.nama)}</div>
+                        <div style="font-size:12px;color:var(--gray-500)">NIM: ${escapeHtml(p.nim)} • ${escapeHtml(p.divisi)}</div>
+                    </div>
+                    <button class="btn btn-primary btn-sm btn-quick-present" data-nim="${p.nim}" data-nama="${escapeHtml(p.nama)}" data-divisi="${escapeHtml(p.divisi)}" style="font-size:12px;padding:4px 10px">
+                        <i class="bi bi-check-lg"></i> Hadirkan
+                    </button>
+                </div>
+            `;
+        });
+    }
 
     html += `</div>`;
     container.innerHTML = html;
+
+    container.querySelectorAll('.btn-quick-present').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const nim = btn.dataset.nim;
+            const nama = btn.dataset.nama;
+            const divisi = btn.dataset.divisi;
+
+            try {
+                showLoading(true);
+                await db.attendance.add({
+                    nama,
+                    nim,
+                    divisi,
+                    token: 'ADMIN',
+                    status: 'Hadir',
+                });
+                showToast(`Presensi ${nama} berhasil ditandai hadir!`, 'success');
+                renderUnattendedContent();
+            } catch (err) {
+                showToast('Gagal memproses presensi', 'error');
+            } finally {
+                showLoading(false);
+            }
+        });
+    });
 }
 
 function initPrintReport() {

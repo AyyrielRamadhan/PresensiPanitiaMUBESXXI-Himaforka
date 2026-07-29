@@ -106,6 +106,17 @@ function initFormValidation() {
 
     nimInput?.addEventListener('input', () => {
         nimInput.value = nimInput.value.replace(/[^0-9]/g, '');
+        const match = findPanitiaByNim(nimInput.value);
+        if (match) {
+            if (namaInput && (!namaInput.value.trim() || namaInput.dataset.autofilled === 'true')) {
+                namaInput.value = match.nama;
+                namaInput.dataset.autofilled = 'true';
+            }
+            if (divisiInput && (!divisiInput.value || divisiInput.dataset.autofilled === 'true')) {
+                divisiInput.value = match.divisi;
+                divisiInput.dataset.autofilled = 'true';
+            }
+        }
     });
 
     tokenInput?.addEventListener('input', () => {
