@@ -346,13 +346,19 @@
 
             <!-- ===== PAGE: PENGATURAN ===== -->
             <div class="page" id="pagePengaturan">
-                <div class="content-grid">
+                <div style="margin-bottom:20px">
+                    <h3 style="font-size:20px;font-weight:700;color:var(--gray-900)">Pengaturan Sistem Presensi</h3>
+                    <p style="font-size:14px;color:var(--gray-500);margin-top:2px">Kelola interval token, notifikasi suara, sinkronisasi cloud, kustomisasi kop laporan, dan reset data</p>
+                </div>
+
+                <div class="content-grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:20px">
+                    <!-- Card 1: Interval Token -->
                     <div class="card">
                         <div class="card-header">
-                            <i class="bi bi-sliders2"></i>
+                            <i class="bi bi-sliders2" style="color:var(--maroon)"></i>
                             <h3>Interval Token</h3>
                         </div>
-                        <p class="card-desc">Atur durasi pergantian token otomatis.</p>
+                        <p class="card-desc">Atur durasi pergantian token otomatis (detik).</p>
                         <div class="interval-group">
                             <button class="interval-btn" data-interval="30">30 detik</button>
                             <button class="interval-btn active" data-interval="60">60 detik</button>
@@ -361,15 +367,16 @@
                         </div>
                     </div>
 
+                    <!-- Card 2: Auto Generate -->
                     <div class="card">
                         <div class="card-header">
-                            <i class="bi bi-toggle-on"></i>
-                            <h3>Auto Generate</h3>
+                            <i class="bi bi-toggle-on" style="color:var(--maroon)"></i>
+                            <h3>Auto Generate Token</h3>
                         </div>
-                        <p class="card-desc">Token akan otomatis digenerate setiap interval.</p>
-                        <div class="settings-row">
+                        <p class="card-desc">Token akan otomatis digenerate ulang setiap interval.</p>
+                        <div class="settings-row" style="margin-bottom:12px">
                             <div class="settings-info">
-                                <strong>Auto Generate</strong>
+                                <strong>Pergantian Otomatis</strong>
                                 <span>Nyalakan untuk pergantian token otomatis</span>
                             </div>
                             <label class="toggle">
@@ -380,6 +387,80 @@
                         <span id="autoGenerateStatus" style="font-size:13px;color:var(--success);font-weight:500;display:inline-flex;align-items:center;gap:6px">
                             <i class="bi bi-check-circle-fill"></i> Aktif
                         </span>
+                    </div>
+
+                    <!-- Card 3: Notifikasi Suara -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-bell-fill" style="color:#eab308"></i>
+                            <h3>Notifikasi Suara Presensi</h3>
+                        </div>
+                        <p class="card-desc">Bunyikan bel chime saat peserta baru presensi.</p>
+                        <div class="settings-row" style="margin-bottom:14px">
+                            <div class="settings-info">
+                                <strong>Suara Lonceng (Chime)</strong>
+                                <span>Putar efek suara saat presensi masuk</span>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox" id="soundToggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <button id="testSoundBtn" class="btn btn-outline btn-sm" style="width:100%">
+                            <i class="bi bi-volume-up-fill"></i> Uji Coba Suara Presensi
+                        </button>
+                    </div>
+
+                    <!-- Card 4: Status Cloud Sync -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-cloud-check-fill" style="color:#2563eb"></i>
+                            <h3>Cloud Database & Sync</h3>
+                        </div>
+                        <p class="card-desc">Status koneksi basis data Firestore & LocalStorage.</p>
+                        <div style="padding:12px;background:var(--gray-50);border-radius:var(--radius-sm);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
+                            <span style="font-size:13px;font-weight:600;color:var(--gray-700)">Status Koneksi:</span>
+                            <span id="settingsCloudBadge" class="badge badge-success" style="font-size:12px">
+                                <i class="bi bi-cloud-check-fill"></i> Firestore Online
+                            </span>
+                        </div>
+                        <button id="syncCloudBtn" class="btn btn-outline btn-sm" style="width:100%">
+                            <i class="bi bi-arrow-clockwise"></i> Paksa Sinkronisasi Cloud
+                        </button>
+                    </div>
+
+                    <!-- Card 5: Kustomisasi Kop Laporan PDF -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-file-earmark-pdf-fill" style="color:#dc2626"></i>
+                            <h3>Kop Laporan PDF</h3>
+                        </div>
+                        <p class="card-desc">Atur judul dan instansi di Kop Laporan PDF.</p>
+                        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+                            <div>
+                                <label style="font-size:12px;font-weight:600;color:var(--gray-700);display:block;margin-bottom:4px">Nama Kegiatan:</label>
+                                <input type="text" id="eventNameInput" class="input" value="MUSYAWARAH BESAR (MUBES) XXI" style="font-size:13px">
+                            </div>
+                            <div>
+                                <label style="font-size:12px;font-weight:600;color:var(--gray-700);display:block;margin-bottom:4px">Organisasi / Himpunan:</label>
+                                <input type="text" id="eventOrgInput" class="input" value="HIMPUNAN MAHASISWA INFORMATIKA (HIMAFORKA)" style="font-size:13px">
+                            </div>
+                        </div>
+                        <button id="saveEventInfoBtn" class="btn btn-primary btn-sm" style="width:100%">
+                            <i class="bi bi-check-lg"></i> Simpan Pengaturan Kop
+                        </button>
+                    </div>
+
+                    <!-- Card 6: Danger Zone / Reset -->
+                    <div class="card" style="border:1px solid #fecaca;background:#fff5f5">
+                        <div class="card-header">
+                            <i class="bi bi-exclamation-triangle-fill" style="color:var(--danger)"></i>
+                            <h3 style="color:var(--danger)">Zona Bahaya (Reset Data)</h3>
+                        </div>
+                        <p class="card-desc" style="color:#991b1b">Kosongkan seluruh data presensi peserta jika ingin memulai sesi baru.</p>
+                        <button id="clearAllBtn" class="btn btn-danger btn-sm" style="width:100%;margin-top:10px">
+                            <i class="bi bi-trash-fill"></i> Kosongkan Seluruh Data Presensi
+                        </button>
                     </div>
                 </div>
             </div>

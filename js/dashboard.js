@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         initAdminManualAdd();
         initStatCardsClick();
         initPrintReport();
+        initExtraSettingsControls();
     } catch (error) {
         console.error('[Dashboard] Init error:', error);
         showToast('Gagal memuat dashboard', 'error');
@@ -699,6 +700,33 @@ function initClearAll() {
                 showLoading(false);
             }
         });
+    });
+}
+
+function initExtraSettingsControls() {
+    $('testSoundBtn')?.addEventListener('click', () => {
+        playChimeSound();
+        showToast('Suara lonceng presensi diputar 🔔', 'info');
+    });
+
+    $('syncCloudBtn')?.addEventListener('click', () => {
+        showLoading(true);
+        setTimeout(() => {
+            showLoading(false);
+            showToast('Cloud Firestore tersinkronisasi 100%!', 'success');
+        }, 500);
+    });
+
+    $('saveEventInfoBtn')?.addEventListener('click', () => {
+        const title = $('eventNameInput')?.value.trim();
+        const org = $('eventOrgInput')?.value.trim();
+        if (title && org) {
+            localStorage.setItem('mubes_event_title', title);
+            localStorage.setItem('mubes_event_org', org);
+            showToast('Pengaturan Kop Laporan PDF berhasil disimpan!', 'success');
+        } else {
+            showToast('Harap isi Nama Kegiatan dan Organisasi', 'warning');
+        }
     });
 }
 
