@@ -784,49 +784,73 @@
    ============================================================ */
 
 @media print {
+    /* Sembunyikan elemen non-laporan (Sidebar, Topbar, Halaman Beranda, Halaman Pengaturan, Filter, Tombol, Modal, QR) */
     .sidebar,
     .topbar,
     .filter-bar,
     .no-print,
     .btn,
     .modal-overlay,
-    .badge-outline {
+    .badge-outline,
+    #pageBeranda,
+    #pagePengaturan,
+    .page:not(#pagePresensi),
+    #qrCard,
+    .qr-card-clickable,
+    .token-card,
+    .stats-grid {
         display: none !important;
     }
 
     body {
         background: #ffffff !important;
         color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
     .main-content {
         margin-left: 0 !important;
         padding: 0 !important;
+        width: 100% !important;
     }
 
-    .page {
+    #pagePresensi {
         display: block !important;
+    }
+
+    .print-header {
+        display: block !important;
+        margin-bottom: 20px !important;
     }
 
     .card {
         box-shadow: none !important;
-        border: 1px solid #ddd !important;
-        break-inside: avoid;
-        margin-bottom: 20px !important;
+        border: none !important;
+        padding: 0 !important;
+        margin-bottom: 0 !important;
+        background: transparent !important;
+    }
+
+    .table-wrapper {
+        overflow: visible !important;
     }
 
     .table {
         border-collapse: collapse !important;
         width: 100% !important;
+        margin-top: 10px !important;
     }
 
     .table th, .table td {
-        border: 1px solid #ccc !important;
+        border: 1px solid #999 !important;
         padding: 8px 12px !important;
         color: #000 !important;
+        font-size: 12px !important;
     }
 
     .table th {
-        background-color: #f3f4f6 !important;
+        background-color: #f1f5f9 !important;
+        font-weight: 700 !important;
     }
 }

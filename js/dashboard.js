@@ -764,12 +764,13 @@ function renderUnattendedContent() {
     container.innerHTML = html;
 }
 
-/* ============================================================
-   PRINT REPORT
-   ============================================================ */
-
 function initPrintReport() {
     $('printReportBtn')?.addEventListener('click', () => {
+        const pagePresensi = $('pagePresensi');
+        if (pagePresensi) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            pagePresensi.classList.add('active');
+        }
         window.print();
     });
 }
