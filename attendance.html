@@ -19,13 +19,13 @@
     <link rel="stylesheet" href="css/attendance.css" />
     <link rel="stylesheet" href="css/responsive.css" />
     <script type="importmap">
-    {
+      {
         "imports": {
-            "firebase/app": "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js",
-            "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js",
-            "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
+          "firebase/app": "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js",
+          "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js",
+          "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
         }
-    }
+      }
     </script>
   </head>
   <body>
@@ -88,7 +88,7 @@
                 <option value="Sie Humas">Sie Humas</option>
                 <option value="Sie Perlengkapan">Sie Perlengkapan</option>
                 <option value="Sie Konsumsi">Sie Konsumsi</option>
-                <option value="PDD">PDD</option>
+                <option value="Sie PDD">Sie PDD</option>
               </select>
               <span class="form-error-msg" id="divisiError"></span>
             </div>
@@ -99,7 +99,11 @@
 
             <div class="scanner-section">
               <div class="scanner-toggle-row">
-                <button type="button" id="scanBtn" class="btn btn-primary btn-sm">
+                <button
+                  type="button"
+                  id="scanBtn"
+                  class="btn btn-primary btn-sm"
+                >
                   <i class="bi bi-camera"></i> Scan QR
                 </button>
                 <button
@@ -147,22 +151,40 @@
                 maxlength="6"
                 autocomplete="off"
                 inputmode="numeric"
-                style="letter-spacing: 4px; font-weight: 700; text-align: center; font-family: monospace"
+                style="
+                  letter-spacing: 4px;
+                  font-weight: 700;
+                  text-align: center;
+                  font-family: monospace;
+                "
               />
               <span class="form-error-msg" id="tokenError"></span>
             </div>
 
-            <button type="submit" id="presensiBtn" class="btn btn-primary btn-full btn-large">
+            <button
+              type="submit"
+              id="presensiBtn"
+              class="btn btn-primary btn-full btn-large"
+            >
               <i class="bi bi-check-lg"></i> Presensi
             </button>
           </form>
 
-          <div id="successState" class="attendance-success" style="display: none">
+          <div
+            id="successState"
+            class="attendance-success"
+            style="display: none"
+          >
             <div class="attendance-success-icon">
               <i class="bi bi-check-circle-fill"></i>
             </div>
             <h3>Presensi Berhasil!</h3>
-            <p id="successMessage" style="color: var(--gray-500); font-size: 14px">Data Anda telah tercatat.</p>
+            <p
+              id="successMessage"
+              style="color: var(--gray-500); font-size: 14px"
+            >
+              Data Anda telah tercatat.
+            </p>
             <button id="resetFormBtn" class="btn btn-primary">
               <i class="bi bi-arrow-repeat"></i> Presensi Lagi
             </button>
@@ -170,7 +192,9 @@
         </div>
 
         <p class="login-footer" style="margin-top: 16px">
-          <a href="index.html"><i class="bi bi-arrow-left"></i> Kembali ke Beranda</a>
+          <a href="index.html"
+            ><i class="bi bi-arrow-left"></i> Kembali ke Beranda</a
+          >
         </p>
       </div>
     </div>
