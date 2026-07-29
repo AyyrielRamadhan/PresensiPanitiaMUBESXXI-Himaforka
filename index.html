@@ -29,6 +29,9 @@
     </script>
   </head>
   <body class="login-page">
+    <button class="theme-toggle-btn" id="themeToggleBtn" title="Mode Tampilan" style="position:absolute;top:20px;right:20px;background:var(--white);border:1px solid var(--gray-200);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-md);z-index:10">
+      <i class="bi bi-moon-stars-fill" style="color:var(--maroon);font-size:18px"></i>
+    </button>
     <div id="loadingOverlay" class="loading-overlay" style="display: none">
       <div class="loading-spinner"></div>
       <p>Memuat...</p>
@@ -106,6 +109,7 @@
       </div>
     </div>
 
+    <script type="module" src="js/theme.js"></script>
     <script type="module" src="js/firebase.js"></script>
     <script type="module" src="js/utils.js"></script>
     <script type="module" src="js/auth.js"></script>

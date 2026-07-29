@@ -88,6 +88,9 @@
                 <h2 id="navbarTitle">Beranda</h2>
             </div>
             <div class="navbar-right">
+                <button class="theme-toggle-btn" id="themeToggleBtn" title="Mode Tampilan" style="background:var(--gray-100);border:1px solid var(--gray-200);border-radius:50%;width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin-right:6px">
+                    <i class="bi bi-moon-stars-fill" style="color:var(--maroon);font-size:16px"></i>
+                </button>
                 <span id="storageModeBadge" class="badge badge-success" style="font-size:12px;margin-right:8px">
                     <i class="bi bi-cloud-check-fill"></i> Cloud Sync
                 </span>
@@ -451,6 +454,25 @@
                         </button>
                     </div>
 
+                    <!-- Card 6: Mode Tampilan (Dark / Light) -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-palette-fill" style="color:#8b5cf6"></i>
+                            <h3>Mode Tampilan (Dark / Light)</h3>
+                        </div>
+                        <p class="card-desc">Pilih tema tampilan gelap atau terang sesuai kenyamanan Anda.</p>
+                        <div class="settings-row" style="margin-bottom:12px">
+                            <div class="settings-info">
+                                <strong>Dark Mode (Gelap)</strong>
+                                <span>Aktifkan tampilan tema serba gelap</span>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox" id="themeToggleCheck">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Card 6: Danger Zone / Reset -->
                     <div class="card" style="border:1px solid #fecaca;background:#fff5f5">
                         <div class="card-header">
@@ -563,6 +585,7 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 
+<script type="module" src="js/theme.js"></script>
 <script type="module" src="js/firebase.js"></script>
 <script type="module" src="js/utils.js"></script>
 <script type="module" src="js/token.js"></script>

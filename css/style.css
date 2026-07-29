@@ -48,6 +48,96 @@
     --navbar-height: 68px;
 }
 
+/* ============================================================
+   DARK MODE THEME OVERRIDES
+   ============================================================ */
+
+[data-theme="dark"] {
+    --white: #1e293b;
+    --gray-50: #0f172a;
+    --gray-100: #1e293b;
+    --gray-200: #334155;
+    --gray-300: #475569;
+    --gray-400: #64748b;
+    --gray-500: #94a3b8;
+    --gray-600: #cbd5e1;
+    --gray-700: #e2e8f0;
+    --gray-800: #f1f5f9;
+    --gray-900: #ffffff;
+    --maroon-glow: rgba(255, 255, 255, 0.1);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] body {
+    background-color: #0f172a;
+    color: #f8fafc;
+}
+
+[data-theme="dark"] h1, 
+[data-theme="dark"] h2, 
+[data-theme="dark"] h3, 
+[data-theme="dark"] h4, 
+[data-theme="dark"] h5, 
+[data-theme="dark"] h6 {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .navbar {
+    background: rgba(30, 41, 59, 0.9);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .card {
+    background: #1e293b;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .input {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .input:focus {
+    border-color: var(--maroon);
+    background: #0f172a;
+}
+
+[data-theme="dark"] .table th {
+    background: #0f172a;
+    color: #94a3b8;
+    border-bottom: 1px solid #334155;
+}
+
+[data-theme="dark"] .table td {
+    border-bottom: 1px solid #1e293b;
+    color: #e2e8f0;
+}
+
+[data-theme="dark"] .table tr:hover td {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="dark"] .modal-box {
+    background: #1e293b;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .login-card,
+[data-theme="dark"] .attendance-card {
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .glass {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 html {
     scroll-behavior: smooth;
 }
