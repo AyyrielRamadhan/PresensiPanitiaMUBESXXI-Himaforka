@@ -112,17 +112,13 @@ body.login-page::before {
 }
 
 .login-brand-icon {
-    width: 64px;
-    height: 64px;
-    background: linear-gradient(135deg, var(--maroon), var(--maroon-dark));
-    border-radius: var(--radius-lg);
+    width: 72px;
+    height: 72px;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 28px;
-    font-weight: 700;
-    color: white;
-    box-shadow: 0 8px 24px rgba(122, 0, 26, 0.25);
+    filter: drop-shadow(0 6px 16px rgba(122, 0, 26, 0.25));
 }
 
 .login-brand h1 {
