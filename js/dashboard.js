@@ -187,41 +187,45 @@ function initTokenDisplay() {
     initQRModal();
 }
 
-let modalQrInitialized = false;
+export function openQRModal() {
+    const modal = $('qrModal');
+    if (!modal) return;
+
+    const settings = getSettings();
+    modal.style.display = 'flex';
+    if ($('modalTokenDisplay')) $('modalTokenDisplay').textContent = settings.currentToken || '------';
+    
+    initQR('modalQRCode', settings.currentToken, 280);
+}
+
+export function closeQRModal() {
+    const modal = $('qrModal');
+    if (modal) modal.style.display = 'none';
+}
+
+window.openQRModal = openQRModal;
+window.closeQRModal = closeQRModal;
 
 function initQRModal() {
     const qrCard = $('qrCard');
     const modal = $('qrModal');
     const closeBtn = $('qrModalClose');
-    if (!qrCard || !modal) return;
+    if (!modal) return;
 
-    function openModal() {
-        const settings = getSettings();
-        modal.style.display = 'flex';
-        if ($('modalTokenDisplay')) $('modalTokenDisplay').textContent = settings.currentToken || '------';
-        
-        if (!modalQrInitialized) {
-            initQR('modalQRCode', settings.currentToken, 280);
-            modalQrInitialized = true;
-        } else {
-            updateQR(settings.currentToken);
-        }
+    if (qrCard) {
+        qrCard.addEventListener('click', openQRModal);
     }
-
-    function closeModal() {
-        modal.style.display = 'none';
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeQRModal);
     }
-
-    qrCard.addEventListener('click', openModal);
-    if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
     modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
+        if (e.target === modal) closeQRModal();
     });
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modal.style.display === 'flex') {
-            closeModal();
+            closeQRModal();
         }
     });
 }
