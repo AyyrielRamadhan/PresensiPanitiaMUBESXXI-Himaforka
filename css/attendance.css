@@ -342,3 +342,75 @@
         font-size: 17px;
     }
 }
+
+/* ============================================================
+   DARK MODE OVERRIDES FOR ATTENDANCE PAGE
+   ============================================================ */
+
+[data-theme="dark"] .attendance-page {
+    background: #0f172a !important;
+}
+
+[data-theme="dark"] .attendance-card {
+    background: #1e293b !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="dark"] .attendance-header h2 {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .attendance-header p {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] label {
+    color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .input {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    border-color: #334155 !important;
+}
+
+[data-theme="dark"] .btn-primary {
+    background: linear-gradient(135deg, #991b1b, #7a001a) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .scanner-section .card {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+
+[data-theme="dark"] #scannerContainer {
+    background: #0f172a !important;
+}
+
+[data-theme="dark"] .scanner-placeholder {
+    color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .scanner-placeholder i {
+    color: #ff4d6d !important;
+}
+
+[data-theme="dark"] .scanner-placeholder p {
+    color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .form-divider span,
+[data-theme="dark"] .form-or span {
+    background: #1e293b !important;
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .login-footer a {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .login-footer a:hover {
+    color: #ffffff !important;
+}
