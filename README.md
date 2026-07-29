@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/logo.svg" alt="HIMAFORKA" width="120" height="120">
+  <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiB2aWV3Qm94PSIwIDAgMTIwIDEyMCI+CiAgPGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzdhMDAxYSIgc3Ryb2tlLXdpZHRoPSI0Ii8+CiAgPHBhdGggZD0iTTQwIDU1bDEyIDEyIDI4LTI4IiBzdHJva2U9IiM3YTAwMWEiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPHRleHQgeD0iNjAiIHk9IjEwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXdlaWdodD0iYm9sZCIgZm9udC1zaXplPSIxMCIgZmlsbD0iIzdhMDAxYSI+SElNQUZPUktBPC90ZXh0Pgo8L3N2Zz4K" alt="HIMAFORKA" width="120" height="120">
   <br>
   <h1>📋 Presensi Panitia MUBES XXI</h1>
   <p><strong>Sistem Presensi Digital berbasis QR Code & Token</strong></p>
@@ -28,24 +28,6 @@
 | **⚙️ Pengaturan Token** | Interval kustom (30–300 detik) & mode auto-generate |
 | **📱 Responsive** | Tampilan optimal di desktop & mobile |
 | **🔋 Zero Dependencies** | Bisa jalan langsung tanpa server — cukup buka di browser |
-
----
-
-## 🚀 Cara Menjalankan
-
-1. **Clone repositori ini**
-   ```bash
-   git clone https://github.com/username/PresensiPanitiaMubes.git
-   cd PresensiPanitiaMubes
-   ```
-
-2. **Buka di browser**
-   - Buka file `index.html` langsung, atau
-   - Gunakan Live Server (VS Code) / `npx serve` agar ES Modules berjalan sempurna
-
-3. **Login**
-   - **Admin:** `admin@himaforka.ac.id` / `Ayyrielganteng06`
-   - **Panitia:** Masukkan nama & NIM (9 digit)
 
 ---
 
@@ -105,17 +87,6 @@ Semua data disimpan di **localStorage** browser:
 - **SheetJS (xlsx)** — Export ke Excel
 - **Bootstrap Icons** — Ikon UI
 - **Google Fonts (Poppins)** — Tipografi
-
----
-
-## 📸 Tampilan
-
-> _🎯 Tambahkan screenshot di sini:_
-> - `screenshots/login.png` — Halaman login
-> - `screenshots/dashboard.png` — Dashboard admin
-> - `screenshots/attendance.png` — Form presensi
-
----
 
 ## 📄 Lisensi
 
