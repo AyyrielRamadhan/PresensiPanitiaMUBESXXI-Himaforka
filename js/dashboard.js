@@ -181,12 +181,54 @@ function initTokenDisplay() {
     const settings = getSettings();
     if (settings.currentToken) {
         $('adminTokenDisplay').textContent = settings.currentToken;
+        if ($('modalTokenDisplay')) $('modalTokenDisplay').textContent = settings.currentToken;
     }
     updateCountdown(settings);
+    initQRModal();
+}
+
+let modalQrInitialized = false;
+
+function initQRModal() {
+    const qrCard = $('qrCard');
+    const modal = $('qrModal');
+    const closeBtn = $('qrModalClose');
+    if (!qrCard || !modal) return;
+
+    function openModal() {
+        const settings = getSettings();
+        modal.style.display = 'flex';
+        if ($('modalTokenDisplay')) $('modalTokenDisplay').textContent = settings.currentToken || '------';
+        
+        if (!modalQrInitialized) {
+            initQR('modalQRCode', settings.currentToken, 280);
+            modalQrInitialized = true;
+        } else {
+            updateQR(settings.currentToken);
+        }
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    qrCard.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+            closeModal();
+        }
+    });
 }
 
 function onSettingsUpdate(settings) {
     $('adminTokenDisplay').textContent = settings.currentToken;
+    if ($('modalTokenDisplay')) $('modalTokenDisplay').textContent = settings.currentToken;
     updateQR(settings.currentToken);
     updateCountdown(settings);
     updateAutoGenUI(settings);
@@ -203,12 +245,14 @@ function updateCountdown(settings) {
 
     const expiredAt = settings.expiredAt || Date.now();
     const text = $('adminCountdownText');
+    const modalText = $('modalCountdownText');
 
     function tick() {
         const now = Date.now();
         const remaining = Math.max(0, Math.floor((expiredAt - now) / 1000));
 
         if (text) text.textContent = remaining;
+        if (modalText) modalText.textContent = remaining;
 
         if (remaining <= 0) {
             clearInterval(countdownTimer);

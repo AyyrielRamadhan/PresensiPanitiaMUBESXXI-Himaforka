@@ -166,14 +166,17 @@
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card qr-card-clickable" id="qrCard" style="cursor:pointer" title="Klik untuk memperbesar QR Code">
                         <div class="card-header">
                             <i class="bi bi-qr-code"></i>
                             <h3>QR Code</h3>
+                            <span class="badge badge-outline" style="margin-left:auto;font-size:11px;cursor:pointer"><i class="bi bi-arrows-angle-expand"></i> Perbesar</span>
                         </div>
                         <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px 0">
                             <div id="adminQRCode"></div>
-                            <p class="card-desc" style="margin-bottom:0">Scan untuk presensi</p>
+                            <p class="card-desc" style="margin-bottom:0;display:flex;align-items:center;gap:6px;font-weight:500;color:var(--maroon)">
+                                <i class="bi bi-search-heart"></i> <span>Klik QR untuk memperbesar (Meet Online)</span>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -312,6 +315,38 @@
 
         </div>
     </main>
+</div>
+
+<!-- Modal QR Code Large View (Google Meet Online) -->
+<div id="qrModal" class="qr-modal-overlay" style="display:none">
+    <div class="qr-modal-content">
+        <button class="qr-modal-close" id="qrModalClose" aria-label="Tutup">&times;</button>
+        <div class="qr-modal-header">
+            <div class="qr-modal-icon">
+                <i class="bi bi-qr-code-scan"></i>
+            </div>
+            <h3>QR Code Presensi MUBES XXI</h3>
+            <p>Tampilan besar untuk Zoom / Google Meet Online</p>
+        </div>
+        <div class="qr-modal-body">
+            <div class="qr-modal-code-wrapper">
+                <div id="modalQRCode"></div>
+            </div>
+            <div class="qr-modal-token-box">
+                <span class="qr-modal-token-label">TOKEN AKTIF</span>
+                <div class="qr-modal-token-val" id="modalTokenDisplay">------</div>
+                <div class="qr-modal-timer">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Berlaku </span>
+                    <strong id="modalCountdownText">0</strong>
+                    <span>detik lagi</span>
+                </div>
+            </div>
+        </div>
+        <div class="qr-modal-footer">
+            <span><i class="bi bi-info-circle"></i> Tekan ESC atau klik di luar untuk menutup</span>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
