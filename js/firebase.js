@@ -115,6 +115,12 @@ const USERS = [
     role: "admin",
     displayName: "Admin",
   },
+  {
+    username: "jeppp",
+    password: "jeppp",
+    role: "admin",
+    displayName: "Jepri (Admin)",
+  },
 ];
 
 let authListeners = [];
