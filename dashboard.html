@@ -166,14 +166,14 @@
                         </div>
                     </div>
 
-                    <div class="card qr-card-clickable" id="qrCard" style="cursor:pointer" title="Klik untuk memperbesar QR Code">
+                    <div class="card qr-card-clickable" id="qrCard" onclick="window.openQRModal && window.openQRModal()" style="cursor:pointer" title="Klik untuk memperbesar QR Code">
                         <div class="card-header">
                             <i class="bi bi-qr-code"></i>
                             <h3>QR Code</h3>
-                            <span class="badge badge-outline" style="margin-left:auto;font-size:11px;cursor:pointer"><i class="bi bi-arrows-angle-expand"></i> Perbesar</span>
+                            <span class="badge badge-outline" onclick="event.stopPropagation(); window.openQRModal && window.openQRModal()" style="margin-left:auto;font-size:11px;cursor:pointer"><i class="bi bi-arrows-angle-expand"></i> Perbesar</span>
                         </div>
                         <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px 0">
-                            <div id="adminQRCode"></div>
+                            <div id="adminQRCode" onclick="event.stopPropagation(); window.openQRModal && window.openQRModal()"></div>
                             <p class="card-desc" style="margin-bottom:0;display:flex;align-items:center;gap:6px;font-weight:500;color:var(--maroon)">
                                 <i class="bi bi-search-heart"></i> <span>Klik QR untuk memperbesar (Meet Online)</span>
                             </p>
