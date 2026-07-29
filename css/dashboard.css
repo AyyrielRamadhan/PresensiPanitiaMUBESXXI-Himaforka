@@ -28,12 +28,14 @@
 .sidebar-brand-icon {
     width: 44px;
     height: 44px;
-    background: transparent;
+    background: #ffffff;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    filter: drop-shadow(0 4px 12px rgba(255, 255, 255, 0.2));
+    padding: 4px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 
 .sidebar-brand-text {
