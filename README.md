@@ -8,6 +8,7 @@
   <img src="https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=fff">
   <img src="https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=fff">
   <img src="https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=000">
+  <img src="https://img.shields.io/badge/Firebase-FFCA28?logo=firebase&logoColor=000">
   <img src="https://img.shields.io/badge/localStorage-FF6F00?logo=googlechrome&logoColor=fff">
   <img src="https://img.shields.io/badge/license-MIT-blue">
 </div>
@@ -16,16 +17,61 @@
 
 ## ✨ Fitur
 
-| Fitur                    | Deskripsi                                                       |
-| ------------------------ | --------------------------------------------------------------- |
-| **🔐 Dual Role Login**   | Admin & Panitia (login via NIM) dengan redirect otomatis        |
-| **🎫 Token 6 Digit**     | Token numerik dengan countdown & auto-generate berkala          |
-| **📷 Scan QR Code**      | Peserta scan QR dari dashboard admin via kamera HP              |
-| **📊 Dashboard Admin**   | Statistik kehadiran, tabel data, grafik divisi, riwayat terbaru |
-| **📤 Export Excel**      | Unduh data presensi ke format `.xlsx` (SheetJS)                 |
-| **⚙️ Pengaturan Token**  | Interval kustom (30–300 detik) & mode auto-generate             |
-| **📱 Responsive**        | Tampilan optimal di desktop & mobile                            |
-| **🔋 Zero Dependencies** | Bisa jalan langsung tanpa server — cukup buka di browser        |
+| Fitur | Deskripsi |
+| --- | --- |
+| **🔐 Dual Role Login** | Admin & Panitia (login via NIM) dengan redirect otomatis |
+| **🎫 Token 6 Digit** | Token numerik dengan countdown & auto-generate berkala |
+| **📷 Scan QR Code** | Peserta scan QR dari dashboard admin via kamera HP |
+| **📊 Dashboard Admin** | Statistik kehadiran, tabel data, grafik divisi, riwayat terbaru |
+| **📤 Export Excel** | Unduh data presensi ke format `.xlsx` (SheetJS) |
+| **⚙️ Pengaturan Token** | Interval kustom (30–300 detik) & mode auto-generate |
+| **⚡ Hybrid Storage** | Firestore Cloud Sync dengan Otomatis Fallback ke LocalStorage jika offline/gagal |
+| **📱 Responsive** | Tampilan optimal di desktop & mobile |
+
+---
+
+## ⚡ Fitur Hybrid Storage Engine
+
+Sistem ini dilengkapi **Hybrid Storage Manager** pada `js/firebase.js`:
+
+1. **🟢 Cloud Sync (Firebase Firestore)**: Apabila Firebase Firestore aktif dan terhubung, data token & presensi tersinkronisasi secara *realtime* di seluruh perangkat.
+2. **🟡 Local Storage Mode (Offline / Fallback)**: Apabila Firebase Firestore mengalami kendala jaringan atau *security rules* menolak akses, sistem otomatis beralih ke `localStorage` tanpa menyebabkan aplikasi *crash* atau *stuck* di layar "Memuat...".
+
+---
+
+## 🚀 Cara Menjalankan Lokal
+
+Disarankan menggunakan dev server HTTP lokal (agar fitur ES Modules dan Kamera Scan QR berjalan optimal):
+
+```bash
+# Menggunakan npx serve
+npx serve .
+
+# Atau menggunakan Python HTTP Server
+python -m http.server 8000
+```
+Buka `http://localhost:3000` atau `http://localhost:8000` di browser.
+
+### Credential Default Login
+- **Admin**: Username `admin@himaforka.ac.id` | Password `Ayyrielganteng06`
+- **Panitia**: Username `Nama Panitia` | Password `NIM (Angka, min 8-12 digit)`
+
+---
+
+## 🔧 Konfigurasi Firebase Firestore Rules (Opsional)
+
+Jika ingin menggunakan Firebase Cloud Sync antar-perangkat, buka **Firebase Console > Firestore Database > Rules** dan atur aturan ke:
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+```
 
 ---
 
@@ -46,7 +92,7 @@ PresensiPanitiaMubes/
 │   ├── auth.js         # Otentikasi & redirect
 │   ├── dashboard.js    # Logika dashboard admin
 │   ├── attendance.js   # Logika form presensi
-│   ├── firebase.js     # Abstraksi database (localStorage)
+│   ├── firebase.js     # Hybrid storage engine (Firebase Firestore + LocalStorage)
 │   ├── export.js       # Export ke Excel
 │   ├── qrcode-gen.js   # Generate QR Code
 │   ├── scanner.js      # Scan QR Code via kamera
@@ -59,36 +105,6 @@ PresensiPanitiaMubes/
 │   └── logo.svg        # Logo HIMAFORKA
 └── README.md
 ```
-
----
-
-## 🗄️ Penyimpanan Data
-
-Semua data disimpan di **localStorage** browser:
-
-| Key                | Deskripsi                                           |
-| ------------------ | --------------------------------------------------- |
-| `mubes_attendance` | Data presensi (nama, NIM, divisi, token, timestamp) |
-| `mubes_settings`   | Konfigurasi token & auto-generate                   |
-| `mubes_auth`       | Sesi login user                                     |
-
-> 🔁 **Siap upgrade ke Firebase?** Cukup ganti `js/firebase.js` dengan inisialisasi Firestore — API-nya sudah identik, tidak perlu ubah file lain.
-
----
-
-## 🛠️ Teknologi
-
-- **HTML5** + **CSS3** (Vanilla, tanpa framework)
-- **JavaScript ES Modules** (Vanilla, tanpa bundler)
-- **QRCode.js** — Generate QR Code
-- **html5-qrcode** — Scan QR Code via kamera
-- **SheetJS (xlsx)** — Export ke Excel
-- **Bootstrap Icons** — Ikon UI
-- **Google Fonts (Poppins)** — Tipografi
-
-## 📄 Lisensi
-
-Distribusikan di bawah lisensi **MIT**. Lihat file `LICENSE` untuk detail lebih lanjut.
 
 ---
 

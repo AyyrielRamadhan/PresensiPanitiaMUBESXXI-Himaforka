@@ -53,24 +53,24 @@ export function validateForm(nama, nim, divisi) {
  */
 export function validateToken(token, settings = null) {
     if (!token || token.trim().length !== 6) {
-        return { valid: false, message: 'Token harus 6 karakter', settings: null };
+        return { valid: false, message: 'Token harus berisi 6 digit angka', settings: null };
     }
 
     const s = settings || db.settings.get();
 
-    if (!s.currentToken) {
-        return { valid: false, message: 'Token belum di-generate', settings: null };
+    if (!s || !s.currentToken) {
+        return { valid: false, message: 'Token belum di-generate oleh Admin. Silakan buka Dashboard Admin untuk generate token.', settings: null };
     }
 
     const now = Date.now();
     const expiredAt = s.expiredAt || 0;
 
     if (s.currentToken !== token.trim()) {
-        return { valid: false, message: 'Token tidak cocok', settings: s };
+        return { valid: false, message: 'Token salah / tidak cocok', settings: s };
     }
 
     if (now > expiredAt) {
-        return { valid: false, message: 'Token sudah kedaluwarsa', settings: s };
+        return { valid: false, message: 'Token sudah kadaluwarsa. Minta Admin generate token baru.', settings: s };
     }
 
     return { valid: true, message: 'Token valid', settings: s };

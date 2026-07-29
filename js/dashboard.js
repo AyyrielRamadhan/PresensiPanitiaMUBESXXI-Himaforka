@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             onSettingsUpdate(s);
         });
 
+        initStorageModeListener();
         subscribeAttendance();
         initRealtimeClock();
         initLogoutButtons();
@@ -87,6 +88,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         $('dashboardApp').style.display = 'flex';
     }
 });
+
+function initStorageModeListener() {
+    const badge = $('storageModeBadge');
+    if (!badge) return;
+
+    db.onStorageModeChange((isCloud) => {
+        if (isCloud) {
+            badge.className = 'badge badge-success';
+            badge.style.marginRight = '8px';
+            badge.innerHTML = '<i class="bi bi-cloud-check-fill"></i> Cloud Sync';
+        } else {
+            badge.className = 'badge badge-warning';
+            badge.style.marginRight = '8px';
+            badge.innerHTML = '<i class="bi bi-hdd-fill"></i> Local Storage';
+        }
+    });
+}
 
 /* ============================================================
    UI INIT

@@ -16,6 +16,7 @@
     {
         "imports": {
             "firebase/app": "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js",
+            "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js",
             "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
         }
     }
@@ -84,6 +85,9 @@
                 <h2 id="navbarTitle">Beranda</h2>
             </div>
             <div class="navbar-right">
+                <span id="storageModeBadge" class="badge badge-success" style="font-size:12px;margin-right:8px">
+                    <i class="bi bi-cloud-check-fill"></i> Cloud Sync
+                </span>
                 <span id="realtimeClock" class="navbar-clock" style="font-size:13px;color:var(--gray-500);font-weight:500"></span>
                 <button id="logoutBtnNav" class="btn btn-outline btn-sm">
                     <i class="bi bi-box-arrow-right"></i> Keluar

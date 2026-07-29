@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import { getAuth, signInAnonymously } from "firebase/auth";
 import {
   getFirestore,
   doc,
@@ -20,11 +21,10 @@ const firebaseConfig = {
   measurementId: "G-GNZW8P865J",
 };
 
-const app = initializeApp(firebaseConfig);
-const firestore = getFirestore(app);
-
 const STORAGE_KEYS = {
   AUTH: "mubes_auth",
+  SETTINGS: "mubes_settings",
+  ATTENDANCE: "mubes_attendance",
 };
 
 const DEFAULT_SETTINGS = {
@@ -39,7 +39,72 @@ export function serverTimestamp() {
 }
 
 /* ============================================================
-   AUTH — localStorage-based (unchanged)
+   LOCAL STORAGE HELPERS
+   ============================================================ */
+
+function loadFromLocalStorage(key, fallbackValue) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallbackValue;
+  } catch (e) {
+    console.warn(`[LocalStorage] Failed to load ${key}:`, e);
+    return fallbackValue;
+  }
+}
+
+function saveToLocalStorage(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.warn(`[LocalStorage] Failed to save ${key}:`, e);
+  }
+}
+
+/* ============================================================
+   FIREBASE INITIALIZATION & HYBRID STATE
+   ============================================================ */
+
+let app = null;
+let firestore = null;
+let firebaseAuth = null;
+let isCloudConnected = false;
+let modeListeners = [];
+
+try {
+  app = initializeApp(firebaseConfig);
+  firestore = getFirestore(app);
+  firebaseAuth = getAuth(app);
+
+  signInAnonymously(firebaseAuth).catch((err) => {
+    console.warn("[Firebase] Anonymous auth notice:", err.message);
+  });
+} catch (err) {
+  console.warn("[Firebase] SDK Initialization error, running in Local Storage mode:", err);
+}
+
+function setCloudStatus(status) {
+  if (isCloudConnected !== status) {
+    isCloudConnected = status;
+    modeListeners.forEach((cb) => {
+      try { cb(isCloudConnected); } catch (e) { console.error(e); }
+    });
+  }
+}
+
+export function isCloudMode() {
+  return isCloudConnected;
+}
+
+export function onStorageModeChange(callback) {
+  modeListeners.push(callback);
+  callback(isCloudConnected);
+  return () => {
+    modeListeners = modeListeners.filter((cb) => cb !== callback);
+  };
+}
+
+/* ============================================================
+   AUTH — Local Storage Based
    ============================================================ */
 
 const USERS = [
@@ -65,21 +130,15 @@ function notifyAuthListeners(user) {
 
 export const auth = {
   get currentUser() {
-    try {
-      const data = localStorage.getItem(STORAGE_KEYS.AUTH);
-      return data ? JSON.parse(data) : null;
-    } catch {
-      return null;
-    }
+    return loadFromLocalStorage(STORAGE_KEYS.AUTH, null);
   },
 
   login(username, password) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
+        const cleanUser = username.trim().toLowerCase();
         const admin = USERS.find(
-          (u) =>
-            u.username === username.trim().toLowerCase() &&
-            u.password === password,
+          (u) => u.username === cleanUser && u.password === password,
         );
         if (admin) {
           const user = {
@@ -88,15 +147,13 @@ export const auth = {
             displayName: admin.displayName,
             role: admin.role,
           };
-          try {
-            localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(user));
-          } catch {}
+          saveToLocalStorage(STORAGE_KEYS.AUTH, user);
           notifyAuthListeners(user);
           resolve(user);
           return;
         }
 
-        if (/^\d{9}$/.test(password)) {
+        if (/^\d{8,12}$/.test(password)) {
           const user = {
             username: username.trim(),
             uid: "user-" + Date.now(),
@@ -104,9 +161,7 @@ export const auth = {
             role: "user",
             nim: password,
           };
-          try {
-            localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(user));
-          } catch {}
+          saveToLocalStorage(STORAGE_KEYS.AUTH, user);
           notifyAuthListeners(user);
           resolve(user);
           return;
@@ -116,7 +171,7 @@ export const auth = {
           code: "auth/invalid-credential",
           message: "Username atau password salah",
         });
-      }, 300);
+      }, 200);
     });
   },
 
@@ -141,30 +196,11 @@ export const auth = {
 };
 
 /* ============================================================
-   DB — SETTINGS (Firestore)
+   DB — SETTINGS (Hybrid: LocalStorage + Firestore Sync)
    ============================================================ */
 
-let settingsCache = { ...DEFAULT_SETTINGS };
+let settingsCache = loadFromLocalStorage(STORAGE_KEYS.SETTINGS, { ...DEFAULT_SETTINGS });
 let settingsListeners = [];
-let settingsUnsub = null;
-
-fsOnSnapshot(
-  doc(firestore, "settings", "appSettings"),
-  (snap) => {
-    if (snap.exists()) {
-      settingsCache = { ...DEFAULT_SETTINGS, ...snap.data() };
-    } else {
-      setDoc(doc(firestore, "settings", "appSettings"), DEFAULT_SETTINGS).catch(
-        () => {},
-      );
-    }
-    notifySettingsListeners(settingsCache);
-  },
-  (error) => {
-    console.error("[Firebase] Settings snapshot error:", error);
-    notifySettingsListeners(settingsCache);
-  },
-);
 
 function notifySettingsListeners(data) {
   settingsListeners.forEach((cb) => {
@@ -176,6 +212,33 @@ function notifySettingsListeners(data) {
   });
 }
 
+if (firestore) {
+  try {
+    fsOnSnapshot(
+      doc(firestore, "settings", "appSettings"),
+      (snap) => {
+        if (snap.exists()) {
+          settingsCache = { ...DEFAULT_SETTINGS, ...snap.data() };
+          saveToLocalStorage(STORAGE_KEYS.SETTINGS, settingsCache);
+          setCloudStatus(true);
+        } else {
+          setDoc(doc(firestore, "settings", "appSettings"), settingsCache).catch(() => {});
+          setCloudStatus(true);
+        }
+        notifySettingsListeners(settingsCache);
+      },
+      (error) => {
+        console.warn("[Firebase] Settings Cloud Sync unavailable, falling back to Local Storage:", error.message);
+        setCloudStatus(false);
+        notifySettingsListeners(settingsCache);
+      }
+    );
+  } catch (err) {
+    console.warn("[Firebase] Settings snapshot setup error:", err);
+    setCloudStatus(false);
+  }
+}
+
 const settingsAPI = {
   get() {
     return { ...settingsCache };
@@ -184,11 +247,17 @@ const settingsAPI = {
   async set(data) {
     const merged = { ...settingsCache, ...data };
     settingsCache = merged;
+    saveToLocalStorage(STORAGE_KEYS.SETTINGS, settingsCache);
     notifySettingsListeners(settingsCache);
-    try {
-      await setDoc(doc(firestore, "settings", "appSettings"), merged);
-    } catch (error) {
-      console.error("[Firebase] Settings set error:", error);
+
+    if (firestore) {
+      try {
+        await setDoc(doc(firestore, "settings", "appSettings"), merged);
+        setCloudStatus(true);
+      } catch (error) {
+        console.warn("[Firebase] Cloud setDoc failed, data saved locally:", error.message);
+        setCloudStatus(false);
+      }
     }
     return merged;
   },
@@ -207,23 +276,11 @@ const settingsAPI = {
 };
 
 /* ============================================================
-   DB — ATTENDANCE (Firestore)
+   DB — ATTENDANCE (Hybrid: LocalStorage + Firestore Sync)
    ============================================================ */
 
-let attendanceCache = [];
+let attendanceCache = loadFromLocalStorage(STORAGE_KEYS.ATTENDANCE, []);
 let attendanceListeners = [];
-
-fsOnSnapshot(
-  collection(firestore, "attendance"),
-  (snapshot) => {
-    attendanceCache = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-    notifyAttendanceListeners(attendanceCache);
-  },
-  (error) => {
-    console.error("[Firebase] Attendance snapshot error:", error);
-    notifyAttendanceListeners(attendanceCache);
-  },
-);
 
 function notifyAttendanceListeners(data) {
   attendanceListeners.forEach((cb) => {
@@ -235,22 +292,60 @@ function notifyAttendanceListeners(data) {
   });
 }
 
+if (firestore) {
+  try {
+    fsOnSnapshot(
+      collection(firestore, "attendance"),
+      (snapshot) => {
+        attendanceCache = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        saveToLocalStorage(STORAGE_KEYS.ATTENDANCE, attendanceCache);
+        setCloudStatus(true);
+        notifyAttendanceListeners(attendanceCache);
+      },
+      (error) => {
+        console.warn("[Firebase] Attendance Cloud Sync unavailable, falling back to Local Storage:", error.message);
+        setCloudStatus(false);
+        notifyAttendanceListeners(attendanceCache);
+      }
+    );
+  } catch (err) {
+    console.warn("[Firebase] Attendance snapshot setup error:", err);
+    setCloudStatus(false);
+  }
+}
+
 const attendanceAPI = {
   getAll() {
     return [...attendanceCache];
   },
 
   async add(data) {
+    const id = 'att_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
     const record = {
+      id,
       ...data,
       createdAt: Date.now(),
     };
-    const docRef = await addDoc(collection(firestore, "attendance"), record);
-    return { id: docRef.id, ...record };
+
+    attendanceCache.unshift(record);
+    saveToLocalStorage(STORAGE_KEYS.ATTENDANCE, attendanceCache);
+    notifyAttendanceListeners(attendanceCache);
+
+    if (firestore) {
+      try {
+        const docRef = await addDoc(collection(firestore, "attendance"), record);
+        setCloudStatus(true);
+        return { id: docRef.id, ...record };
+      } catch (error) {
+        console.warn("[Firebase] Attendance Cloud addDoc failed, data saved locally:", error.message);
+        setCloudStatus(false);
+      }
+    }
+    return record;
   },
 
   getByNim(nim) {
-    return attendanceCache.filter((d) => d.nim === nim);
+    return attendanceCache.filter((d) => d.nim === String(nim).trim());
   },
 
   existsByNim(nim) {
@@ -259,23 +354,29 @@ const attendanceAPI = {
 
   async deleteAll() {
     attendanceCache = [];
+    saveToLocalStorage(STORAGE_KEYS.ATTENDANCE, []);
     notifyAttendanceListeners([]);
-    try {
-      const snapshot = await getDocs(collection(firestore, "attendance"));
-      if (snapshot.docs.length > 0) {
-        const batch = writeBatch(firestore);
-        snapshot.docs.forEach((d) => batch.delete(d.ref));
-        await batch.commit();
+
+    if (firestore) {
+      try {
+        const snapshot = await getDocs(collection(firestore, "attendance"));
+        if (snapshot.docs.length > 0) {
+          const batch = writeBatch(firestore);
+          snapshot.docs.forEach((d) => batch.delete(d.ref));
+          await batch.commit();
+        }
+        setCloudStatus(true);
+      } catch (error) {
+        console.warn("[Firebase] Cloud deleteAll failed, local cleared:", error.message);
+        setCloudStatus(false);
       }
-    } catch (error) {
-      console.error("[Firebase] Attendance deleteAll error:", error);
     }
   },
 
   query({ search = "", divisi = "" } = {}) {
     let list = [...attendanceCache];
     if (search) {
-      const t = search.toLowerCase();
+      const t = search.toLowerCase().trim();
       list = list.filter(
         (d) =>
           (d.nama || "").toLowerCase().includes(t) ||
@@ -312,4 +413,6 @@ const attendanceAPI = {
 export const db = {
   settings: settingsAPI,
   attendance: attendanceAPI,
+  isCloudMode,
+  onStorageModeChange,
 };
