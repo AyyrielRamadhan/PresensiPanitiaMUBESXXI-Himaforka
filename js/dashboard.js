@@ -396,6 +396,7 @@ function subscribeAttendance() {
             document.getElementById('filterDivisi')?.value || '',
             document.getElementById('filterStatus')?.value || ''
         );
+        renderPanitiaTables();
         renderChart();
     });
 }
@@ -813,6 +814,11 @@ function initStatCardsClick() {
         }
     }
 
+    function navigateToPage(pageName) {
+        const link = document.querySelector(`.sidebar-link[data-page="${pageName}"]`);
+        if (link) link.click();
+    }
+
     statHadirCard?.addEventListener('click', () => {
         navigateToPresensi('Hadir');
     });
@@ -835,7 +841,7 @@ function initStatCardsClick() {
     });
 
     statTotalCard?.addEventListener('click', () => {
-        navigateToPresensi('');
+        navigateToPage('panitia');
     });
 
     statDivisiCard?.addEventListener('click', () => {
@@ -848,6 +854,128 @@ function initStatCardsClick() {
                 chartCard.style.boxShadow = '';
             }, 1500);
         }
+    });
+}
+
+/* ============================================================
+   PAGE: DATA PANITIA (TABLES PER JABATAN / DIVISI)
+   ============================================================ */
+
+function renderPanitiaTables() {
+    const container = $('panitiaTablesContainer');
+    if (!container) return;
+
+    const attendedMap = new Map();
+    attendanceData.forEach(d => {
+        if (d.nim) attendedMap.set(String(d.nim).trim(), d);
+    });
+
+    const grouped = {};
+    DIVISI_LIST.forEach(div => grouped[div] = []);
+
+    MASTER_PANITIA.forEach(p => {
+        const div = p.divisi || 'Lainnya';
+        if (!grouped[div]) grouped[div] = [];
+        grouped[div].push(p);
+    });
+
+    let html = '';
+
+    DIVISI_LIST.forEach(div => {
+        const list = grouped[div] || [];
+        if (list.length === 0) return;
+
+        const hadirCount = list.filter(p => attendedMap.has(p.nim)).length;
+
+        html += `
+            <div class="card" style="padding:20px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid var(--gray-100);padding-bottom:10px;flex-wrap:wrap;gap:8px">
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <i class="bi bi-diagram-3-fill" style="color:var(--maroon);font-size:20px"></i>
+                        <h4 style="font-size:16px;font-weight:700;color:var(--gray-900);margin:0">${escapeHtml(div)}</h4>
+                    </div>
+                    <span class="badge ${hadirCount === list.length ? 'badge-success' : 'badge-warning'}" style="font-size:12px;padding:4px 10px">
+                        ${hadirCount} / ${list.length} Hadir
+                    </span>
+                </div>
+                <div class="table-container" style="box-shadow:none;border:1px solid var(--gray-200);border-radius:var(--radius-md)">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width:50px">No</th>
+                                <th>Nama Panitia</th>
+                                <th>NIM</th>
+                                <th>Jabatan / Divisi</th>
+                                <th>Status Kehadiran</th>
+                                <th>Waktu Presensi</th>
+                                <th class="no-print" style="text-align:right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+
+        html += list.map((p, idx) => {
+            const att = attendedMap.get(p.nim);
+            const isPresent = !!att;
+            const statusBadge = isPresent
+                ? '<span class="badge badge-success"><i class="bi bi-check-circle-fill"></i> Hadir</span>'
+                : '<span class="badge badge-danger"><i class="bi bi-x-circle-fill"></i> Belum Hadir</span>';
+
+            const timeStr = isPresent && att.createdAt
+                ? `${formatDate(att.createdAt)} - ${formatTime(att.createdAt)}`
+                : '-';
+
+            const actionBtn = isPresent
+                ? `<span style="font-size:12px;color:var(--success);font-weight:600"><i class="bi bi-check2-all"></i> Terdaftar</span>`
+                : `<button class="btn btn-primary btn-sm btn-panitia-present" data-nim="${p.nim}" data-nama="${escapeHtml(p.nama)}" data-divisi="${escapeHtml(p.divisi)}" style="font-size:12px;padding:4px 10px">
+                    <i class="bi bi-check-lg"></i> Hadirkan
+                   </button>`;
+
+            const koorTag = p.isKoor ? ' <span class="badge badge-warning" style="font-size:10px;margin-left:4px">Koor</span>' : '';
+
+            return `<tr>
+                <td>${idx + 1}</td>
+                <td><strong>${escapeHtml(p.nama)}</strong>${koorTag}</td>
+                <td>${escapeHtml(p.nim)}</td>
+                <td>${escapeHtml(p.divisi)}</td>
+                <td>${statusBadge}</td>
+                <td>${timeStr}</td>
+                <td class="no-print" style="text-align:right">${actionBtn}</td>
+            </tr>`;
+        }).join('');
+
+        html += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+
+    container.querySelectorAll('.btn-panitia-present').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const nim = btn.dataset.nim;
+            const nama = btn.dataset.nama;
+            const divisi = btn.dataset.divisi;
+
+            try {
+                showLoading(true);
+                await db.attendance.add({
+                    nama,
+                    nim,
+                    divisi,
+                    token: 'ADMIN',
+                    status: 'Hadir',
+                });
+                showToast(`Presensi ${nama} berhasil ditandai hadir!`, 'success');
+            } catch (err) {
+                showToast('Gagal memproses presensi', 'error');
+            } finally {
+                showLoading(false);
+            }
+        });
     });
 }
 
