@@ -1,6 +1,4 @@
 <div align="center">
-  <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiB2aWV3Qm94PSIwIDAgMTIwIDEyMCI+CiAgPGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNTYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzdhMDAxYSIgc3Ryb2tlLXdpZHRoPSI0Ii8+CiAgPHBhdGggZD0iTTQwIDU1bDEyIDEyIDI4LTI4IiBzdHJva2U9IiM3YTAwMWEiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPHRleHQgeD0iNjAiIHk9IjEwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXdlaWdodD0iYm9sZCIgZm9udC1zaXplPSIxMCIgZmlsbD0iIzdhMDAxYSI+SElNQUZPUktBPC90ZXh0Pgo8L3N2Zz4K" alt="HIMAFORKA" width="120" height="120">
-  <br>
   <h1>📋 Presensi Panitia MUBES XXI</h1>
   <p><strong>Sistem Presensi Digital berbasis QR Code & Token</strong></p>
   <p>Himpunan Mahasiswa Informatika & FORSI — Universitas</p>
@@ -18,16 +16,16 @@
 
 ## ✨ Fitur
 
-| Fitur | Deskripsi |
-|---|---|
-| **🔐 Dual Role Login** | Admin & Panitia (login via NIM) dengan redirect otomatis |
-| **🎫 Token 6 Digit** | Token numerik dengan countdown & auto-generate berkala |
-| **📷 Scan QR Code** | Peserta scan QR dari dashboard admin via kamera HP |
-| **📊 Dashboard Admin** | Statistik kehadiran, tabel data, grafik divisi, riwayat terbaru |
-| **📤 Export Excel** | Unduh data presensi ke format `.xlsx` (SheetJS) |
-| **⚙️ Pengaturan Token** | Interval kustom (30–300 detik) & mode auto-generate |
-| **📱 Responsive** | Tampilan optimal di desktop & mobile |
-| **🔋 Zero Dependencies** | Bisa jalan langsung tanpa server — cukup buka di browser |
+| Fitur                    | Deskripsi                                                       |
+| ------------------------ | --------------------------------------------------------------- |
+| **🔐 Dual Role Login**   | Admin & Panitia (login via NIM) dengan redirect otomatis        |
+| **🎫 Token 6 Digit**     | Token numerik dengan countdown & auto-generate berkala          |
+| **📷 Scan QR Code**      | Peserta scan QR dari dashboard admin via kamera HP              |
+| **📊 Dashboard Admin**   | Statistik kehadiran, tabel data, grafik divisi, riwayat terbaru |
+| **📤 Export Excel**      | Unduh data presensi ke format `.xlsx` (SheetJS)                 |
+| **⚙️ Pengaturan Token**  | Interval kustom (30–300 detik) & mode auto-generate             |
+| **📱 Responsive**        | Tampilan optimal di desktop & mobile                            |
+| **🔋 Zero Dependencies** | Bisa jalan langsung tanpa server — cukup buka di browser        |
 
 ---
 
@@ -68,11 +66,11 @@ PresensiPanitiaMubes/
 
 Semua data disimpan di **localStorage** browser:
 
-| Key | Deskripsi |
-|---|---|
+| Key                | Deskripsi                                           |
+| ------------------ | --------------------------------------------------- |
 | `mubes_attendance` | Data presensi (nama, NIM, divisi, token, timestamp) |
-| `mubes_settings`   | Konfigurasi token & auto-generate |
-| `mubes_auth`       | Sesi login user |
+| `mubes_settings`   | Konfigurasi token & auto-generate                   |
+| `mubes_auth`       | Sesi login user                                     |
 
 > 🔁 **Siap upgrade ke Firebase?** Cukup ganti `js/firebase.js` dengan inisialisasi Firestore — API-nya sudah identik, tidak perlu ubah file lain.
 
