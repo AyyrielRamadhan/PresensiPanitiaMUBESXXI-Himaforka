@@ -252,6 +252,12 @@
     .attendance-header h2 {
         font-size: 18px;
     }
+
+    .attendance-success p {
+        font-size: 13px;
+        text-align: center;
+        width: 100%;
+    }
 }
 
 @media (max-width: 360px) {
@@ -266,5 +272,9 @@
     .user-badge {
         font-size: 11px;
         padding: 4px 8px;
+    }
+
+    .attendance-card {
+        padding: 16px 12px;
     }
 }
