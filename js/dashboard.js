@@ -32,9 +32,21 @@ const $$ = (sel) => document.querySelectorAll(sel);
    INIT
    ============================================================ */
 
+function withTimeout(promise, ms) {
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms)),
+    ]);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     if (!auth.currentUser) {
         window.location.href = 'index.html';
+        return;
+    }
+
+    if (auth.currentUser.role !== 'admin') {
+        window.location.href = 'attendance.html';
         return;
     }
 
@@ -47,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         let settings = getSettings();
         if (!settings.currentToken) {
-            await generateNewToken(settings.interval);
+            await withTimeout(generateNewToken(settings.interval), 10000);
             settings = getSettings();
         }
 

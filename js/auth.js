@@ -73,13 +73,7 @@ auth.onAuthChanged((user) => {
     const isDashboardPage = path.includes('dashboard.html');
     const isAttendancePage = path.includes('attendance.html');
 
-    if (user && isIndexPage) {
-        if (user.role === 'admin') {
-            window.location.href = 'dashboard.html';
-        } else {
-            window.location.href = 'attendance.html';
-        }
-    } else if (user && isAttendancePage && user.role === 'admin') {
+    if (user && isAttendancePage && user.role === 'admin') {
         window.location.href = 'dashboard.html';
     } else if (!user && (isDashboardPage || isAttendancePage)) {
         window.location.href = 'index.html';

@@ -162,6 +162,7 @@ fsOnSnapshot(
   },
   (error) => {
     console.error("[Firebase] Settings snapshot error:", error);
+    notifySettingsListeners(settingsCache);
   },
 );
 
@@ -220,6 +221,7 @@ fsOnSnapshot(
   },
   (error) => {
     console.error("[Firebase] Attendance snapshot error:", error);
+    notifyAttendanceListeners(attendanceCache);
   },
 );
 

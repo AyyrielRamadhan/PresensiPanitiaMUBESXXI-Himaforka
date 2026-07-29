@@ -68,7 +68,7 @@ export async function generateNewToken(interval = null) {
     const intv = interval || settings.interval || 60;
     const expiredAt = calculateExpiry(intv);
 
-    await db.settings.set({
+    db.settings.set({
         currentToken: token,
         expiredAt,
         interval: intv,
@@ -85,7 +85,7 @@ export async function generateNewToken(interval = null) {
  * @param {number} seconds
  */
 export async function setInterval_(seconds) {
-    await db.settings.update({ interval: seconds });
+    db.settings.update({ interval: seconds });
     currentSettings = db.settings.get();
     notifyListeners();
 }
@@ -95,7 +95,7 @@ export async function setInterval_(seconds) {
  * @param {boolean} enabled
  */
 export async function setAutoGenerate(enabled) {
-    await db.settings.update({ autoGenerate: enabled });
+    db.settings.update({ autoGenerate: enabled });
     currentSettings = db.settings.get();
     notifyListeners();
 }
@@ -127,5 +127,5 @@ export function initSettingsListener(onUpdate) {
  * Hapus seluruh data attendance.
  */
 export async function clearAllAttendance() {
-    await db.attendance.deleteAll();
+    db.attendance.deleteAll();
 }
