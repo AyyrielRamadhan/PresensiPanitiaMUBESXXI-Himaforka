@@ -3,7 +3,7 @@
    ============================================================ */
 
 import { db } from './firebase.js';
-import { showToast, showLoading, formatDateOnly, formatTime, escapeHtml } from './utils.js';
+import { showToast, showLoading, formatDateOnly, formatTime, escapeHtml, getIndonesianFullDate } from './utils.js';
 
 /**
  * Export seluruh data attendance ke file Excel.
@@ -53,8 +53,8 @@ export async function exportToExcel() {
 
         XLSX.utils.book_append_sheet(wb, ws, 'Presensi MUBES XXI');
 
-        const now = new Date();
-        const filename = `Presensi_MUBES_XXI_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}.xlsx`;
+        const dateInfo = getIndonesianFullDate();
+        const filename = `Presensi_MUBES_XXI_${dateInfo.fileDate}.xlsx`;
 
         XLSX.writeFile(wb, filename);
         showToast(`File berhasil diunduh: ${filename}`, 'success');

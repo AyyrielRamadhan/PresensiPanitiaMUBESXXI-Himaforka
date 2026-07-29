@@ -4,7 +4,7 @@
 
 import { auth, db } from './firebase.js';
 import { logoutAdmin } from './auth.js';
-import { showToast, showLoading, formatDate, formatTime, debounce, escapeHtml } from './utils.js';
+import { showToast, showLoading, formatDate, formatTime, debounce, escapeHtml, getIndonesianFullDate } from './utils.js';
 import { loadSettings, generateNewToken, getSettings, initSettingsListener } from './token.js';
 import { initQR, updateQR } from './qrcode-gen.js';
 import { exportToExcel } from './export.js';
@@ -771,6 +771,21 @@ function initPrintReport() {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             pagePresensi.classList.add('active');
         }
+
+        const dateInfo = getIndonesianFullDate();
+        const oldTitle = document.title;
+        const pdfFileName = `Laporan_Presensi_MUBES_XXI_${dateInfo.fileDate}`;
+
+        document.title = pdfFileName;
+        const subheader = $('printDateSubheader');
+        if (subheader) {
+            subheader.textContent = `Himpunan Mahasiswa Informatika (HIMAFORKA) — ${dateInfo.displayDate}`;
+        }
+
         window.print();
+
+        setTimeout(() => {
+            document.title = oldTitle;
+        }, 1000);
     });
 }

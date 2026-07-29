@@ -152,3 +152,23 @@ export function escapeHtml(str) {
     div.textContent = str;
     return div.innerHTML;
 }
+
+/**
+ * Mengembalikan tanggal lengkap Indonesia (Hari, Tanggal Bulan Tahun).
+ * Contoh: { fileDate: "Rabu_29_Juli_2026", displayDate: "Rabu, 29 Juli 2026" }
+ */
+export function getIndonesianFullDate(date = new Date()) {
+    const d = new Date(date);
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+    const dayName = days[d.getDay()];
+    const dateNum = d.getDate();
+    const monthName = months[d.getMonth()];
+    const year = d.getFullYear();
+
+    return {
+        fileDate: `${dayName}_${dateNum}_${monthName}_${year}`,
+        displayDate: `${dayName}, ${dateNum} ${monthName} ${year}`
+    };
+}
