@@ -34,17 +34,36 @@ const resetFormBtn = $('resetFormBtn');
    ============================================================ */
 
 let unsubSettings = null;
+let settingsReady = false;
+let latestSettings = null;
+let settingsTimeout = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         loadSettings();
 
+        presensiBtn.disabled = true;
+        presensiBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Memuat token...';
+
         unsubSettings = initSettingsListener((settings) => {
+            settingsReady = true;
+            latestSettings = settings;
+            if (settingsTimeout) clearTimeout(settingsTimeout);
+            presensiBtn.disabled = false;
+            presensiBtn.innerHTML = '<i class="bi bi-check-lg"></i> Presensi';
             const activeToken = settings.currentToken;
             if (activeToken) {
                 $('tokenError').textContent = '';
             }
         });
+
+        settingsTimeout = setTimeout(() => {
+            if (!settingsReady) {
+                presensiBtn.disabled = false;
+                presensiBtn.innerHTML = '<i class="bi bi-check-lg"></i> Presensi';
+                showToast('Tidak dapat terhubung ke server. Periksa koneksi Anda.', 'error');
+            }
+        }, 15000);
 
         const user = auth.currentUser;
         if (user && user.role === 'user') {
@@ -130,7 +149,7 @@ async function handleSubmit(e) {
     showLoading(true);
 
     try {
-        const tokenResult = validateToken(token);
+        const tokenResult = validateToken(token, latestSettings);
         if (!tokenResult.valid) {
             $('tokenError').textContent = tokenResult.message;
             showToast(tokenResult.message, 'error');

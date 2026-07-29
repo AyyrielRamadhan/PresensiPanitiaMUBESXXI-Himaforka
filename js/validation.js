@@ -48,31 +48,32 @@ export function validateForm(nama, nim, divisi) {
  * Validasi token.
  * Mengecek apakah token cocok dengan token aktif dan belum expired.
  * @param {string} token
+ * @param {object|null} [settings=null] — settings dari listener (optional). Fallback ke db.settings.get() jika tidak ada.
  * @returns {{ valid: boolean, message: string, settings: object|null }}
  */
-export function validateToken(token) {
+export function validateToken(token, settings = null) {
     if (!token || token.trim().length !== 6) {
         return { valid: false, message: 'Token harus 6 karakter', settings: null };
     }
 
-    const settings = db.settings.get();
+    const s = settings || db.settings.get();
 
-    if (!settings.currentToken) {
+    if (!s.currentToken) {
         return { valid: false, message: 'Token belum di-generate', settings: null };
     }
 
     const now = Date.now();
-    const expiredAt = settings.expiredAt || 0;
+    const expiredAt = s.expiredAt || 0;
 
-    if (settings.currentToken !== token.trim()) {
-        return { valid: false, message: 'Token tidak cocok', settings };
+    if (s.currentToken !== token.trim()) {
+        return { valid: false, message: 'Token tidak cocok', settings: s };
     }
 
     if (now > expiredAt) {
-        return { valid: false, message: 'Token sudah kedaluwarsa', settings };
+        return { valid: false, message: 'Token sudah kedaluwarsa', settings: s };
     }
 
-    return { valid: true, message: 'Token valid', settings };
+    return { valid: true, message: 'Token valid', settings: s };
 }
 
 /**
