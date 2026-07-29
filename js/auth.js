@@ -66,17 +66,28 @@ if (loginForm) {
     loginForm.addEventListener('submit', handleLogin);
 }
 
-/* ---------- AUTH STATE ---------- */
+/* ---------- AUTH STATE & ROLE PROTECTION ---------- */
 auth.onAuthChanged((user) => {
     const path = window.location.pathname;
     const isIndexPage = path.endsWith('index.html') || path.endsWith('/') || path === '' || path.endsWith('login.html');
     const isDashboardPage = path.includes('dashboard.html');
     const isAttendancePage = path.includes('attendance.html');
 
-    if (user && isAttendancePage && user.role === 'admin') {
-        window.location.href = 'dashboard.html';
-    } else if (!user && (isDashboardPage || isAttendancePage)) {
-        window.location.href = 'index.html';
+    if (!user) {
+        if (isDashboardPage || isAttendancePage) {
+            window.location.href = 'index.html';
+        }
+    } else {
+        if (user.role === 'admin') {
+            if (isAttendancePage || isIndexPage) {
+                window.location.href = 'dashboard.html';
+            }
+        } else {
+            // Panitia (user) role is strictly blocked from dashboard.html
+            if (isDashboardPage || isIndexPage) {
+                window.location.href = 'attendance.html';
+            }
+        }
     }
 });
 
